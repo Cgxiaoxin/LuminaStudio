@@ -1,5 +1,7 @@
 ﻿import type { PropsWithChildren } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Button } from "antd";
+import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type ShellPage = {
@@ -13,6 +15,16 @@ type AdminShellProps = PropsWithChildren<{
 }>;
 
 export function AdminShell({ children, pages }: AdminShellProps) {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("tenantId");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
   return (
     <div className="admin-shell">
       <aside className="sidebar">
@@ -34,6 +46,13 @@ export function AdminShell({ children, pages }: AdminShellProps) {
             );
           })}
         </nav>
+        <div className="sidebar-footer">
+          <div className="user-info">
+            <span className="user-name">{user.displayName || "Admin"}</span>
+            <span className="user-role">{user.role || ""}</span>
+          </div>
+          <Button type="text" icon={<LogOut size={16} />} onClick={handleLogout} />
+        </div>
       </aside>
       <main className="main-panel">{children}</main>
     </div>

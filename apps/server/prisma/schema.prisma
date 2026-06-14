@@ -45,10 +45,17 @@ enum ScheduleStatus {
 
 enum BookingStatus {
   CREATED
+  PENDING_PAYMENT
   CONFIRMED
   CHECKED_IN
   COMPLETED
   CANCELED
+}
+
+enum BookingSource {
+  WECHAT_MINIAPP
+  ADMIN
+  MANUAL
 }
 
 enum OrderStatus {
@@ -81,6 +88,12 @@ enum CouponStatus {
   USED
 }
 
+enum MembershipType {
+  COUNT_BASED
+  DURATION_BASED
+  HYBRID
+}
+
 enum MembershipStatus {
   ACTIVE
   EXHAUSTED
@@ -101,7 +114,6 @@ model Tenant {
 
   stores          Store[]
   adminUsers      AdminUser[]
-  coaches         Coach[]
   clients         Client[]
   services        Service[]
   schedules       Schedule[]
@@ -129,7 +141,6 @@ model Store {
 
   tenant       Tenant        @relation(fields: [tenantId], references: [id])
   adminUsers   AdminUser[]
-  coaches      Coach[]
   services     Service[]
   schedules    Schedule[]
   bookings     Booking[]
@@ -152,38 +163,21 @@ model AdminUser {
   passwordHash String
   role         Role       @default(STAFF)
   displayName  String
+  avatarUrl    String?
+  bio          String?
+  phone        String?
   status       UserStatus @default(ACTIVE)
   lastLoginAt  DateTime?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  store  Store? @relation(fields: [storeId], references: [id])
+  tenant           Tenant     @relation(fields: [tenantId], references: [id])
+  store            Store?     @relation(fields: [storeId], references: [id])
+  coachedServices  Service[]  @relation("ServiceCoach")
+  coachedSchedules Schedule[] @relation("ScheduleCoach")
 
   @@unique([tenantId, username])
   @@index([tenantId, role])
-}
-
-model Coach {
-  id        Int        @id @default(autoincrement())
-  tenantId  Int
-  storeId   Int?
-  name      String
-  avatarUrl String?
-  bio       String?
-  phone     String?
-  status    UserStatus @default(ACTIVE)
-  sortOrder Int        @default(0)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  tenant    Tenant     @relation(fields: [tenantId], references: [id])
-  store     Store?     @relation(fields: [storeId], references: [id])
-  services  Service[]
-  schedules Schedule[]
-
-  @@index([tenantId, storeId, status])
-  @@index([tenantId, sortOrder])
 }
 
 model Client {
@@ -225,9 +219,9 @@ model Service {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  store    Store?    @relation(fields: [storeId], references: [id])
-  coach    Coach?    @relation(fields: [coachId], references: [id])
+  tenant   Tenant     @relation(fields: [tenantId], references: [id])
+  store    Store?     @relation(fields: [storeId], references: [id])
+  coach    AdminUser? @relation("ServiceCoach", fields: [coachId], references: [id])
   schedules Schedule[]
   bookings  Booking[]
   orders    Order[]
@@ -251,10 +245,10 @@ model Schedule {
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  store    Store     @relation(fields: [storeId], references: [id])
-  service  Service   @relation(fields: [serviceId], references: [id])
-  coach    Coach     @relation(fields: [coachId], references: [id])
+  tenant   Tenant     @relation(fields: [tenantId], references: [id])
+  store    Store      @relation(fields: [storeId], references: [id])
+  service  Service    @relation(fields: [serviceId], references: [id])
+  coach    AdminUser  @relation("ScheduleCoach", fields: [coachId], references: [id])
   bookings Booking[]
 
   @@index([tenantId, storeId, startAt])
@@ -270,6 +264,7 @@ model Booking {
   serviceId        Int
   scheduleId       Int
   status           BookingStatus @default(CREATED)
+  source           BookingSource @default(MANUAL)
   bookingNo        String        @unique
   paidAmount       Decimal       @default(0) @db.Decimal(10, 2)
   usedMembershipId Int?
@@ -285,6 +280,7 @@ model Booking {
   service        Service      @relation(fields: [serviceId], references: [id])
   schedule       Schedule     @relation(fields: [scheduleId], references: [id])
   usedMembership Membership?  @relation(fields: [usedMembershipId], references: [id])
+  orders         Order[]
   ledgerEntries  LedgerEntry[]
 
   @@index([tenantId, storeId, status, createdAt])
@@ -298,7 +294,7 @@ model Membership {
   storeId         Int?
   clientId        Int
   name            String
-  type            String
+  type            MembershipType
   totalTimes      Int?
   remainingTimes  Int?
   balanceAmount   Decimal          @default(0) @db.Decimal(10, 2)
@@ -324,6 +320,7 @@ model Order {
   tenantId       Int
   storeId        Int
   clientId       Int
+  bookingId      Int?
   serviceId      Int?
   membershipId   Int?
   orderNo        String      @unique
@@ -341,6 +338,7 @@ model Order {
   tenant        Tenant       @relation(fields: [tenantId], references: [id])
   store         Store        @relation(fields: [storeId], references: [id])
   client        Client       @relation(fields: [clientId], references: [id])
+  booking       Booking?     @relation(fields: [bookingId], references: [id])
   service       Service?     @relation(fields: [serviceId], references: [id])
   membership    Membership?  @relation(fields: [membershipId], references: [id])
   payments      Payment[]

@@ -19,4 +19,16 @@ export class CreateStaffDto {
   @IsInt()
   @IsOptional()
   storeId?: number;
+
+  @IsString()
+  @IsOptional()
+  bio?: string;
+
+  @IsString()
+  @IsOptional()
+  avatarUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

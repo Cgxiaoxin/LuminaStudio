@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { AdminLoginDto, WeappLoginDto } from './dto/login.dto';
 import { Public } from './auth.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { TenantId } from '../../common/decorators/tenant-id.decorator';
 import { RequestWithUser } from '../../common/types/request';
 
 @Controller('auth')
@@ -11,9 +12,8 @@ export class AuthController {
 
   @Public()
   @Post('admin-login')
-  async adminLogin(@Body() dto: AdminLoginDto) {
-    // TODO: Resolve tenantId from context or header
-    return this.authService.adminLogin(dto, 1);
+  async adminLogin(@Body() dto: AdminLoginDto, @TenantId() tenantId?: number) {
+    return this.authService.adminLogin(dto, tenantId || 1);
   }
 
   @Public()
