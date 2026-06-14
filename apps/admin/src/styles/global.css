@@ -1,0 +1,106 @@
+﻿:root {
+  color: #1b2430;
+  background: #f6f7f4;
+  font-family: "Aptos", "Segoe UI", sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #17211c;
+  color: #eef4ea;
+  padding: 20px 16px;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #d6ef71;
+  color: #17211c;
+  font-weight: 800;
+}
+
+.brand strong,
+.brand span {
+  display: block;
+}
+
+.brand span {
+  color: #aab8ad;
+  font-size: 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: #dce7dd;
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.nav-item.active,
+.nav-item:hover {
+  background: #26352d;
+  color: #ffffff;
+}
+
+.main-panel {
+  min-width: 0;
+  padding: 28px;
+  background: #f6f7f4;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #667268;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.work-card {
+  border-radius: 8px;
+}
+
+@media (max-width: 840px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}

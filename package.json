@@ -1,0 +1,27 @@
+{
+  "name": "luminastudio",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/server",
+    "apps/admin",
+    "apps/miniapp"
+  ],
+  "scripts": {
+    "dev:server": "npm run start:dev -w @luminastudio/server",
+    "dev:admin": "npm run dev -w @luminastudio/admin",
+    "dev:miniapp": "npm run dev:weapp -w @luminastudio/miniapp",
+    "build:server": "npm run build -w @luminastudio/server",
+    "build:admin": "npm run build -w @luminastudio/admin",
+    "build:miniapp": "npm run build:weapp -w @luminastudio/miniapp",
+    "build": "npm run build:server && npm run build:admin && npm run build:miniapp",
+    "prisma:generate": "npm run prisma:generate -w @luminastudio/server",
+    "prisma:migrate": "npm run prisma:migrate -w @luminastudio/server"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "devDependencies": {
+    "@types/passport-jwt": "^4.0.1"
+  }
+}

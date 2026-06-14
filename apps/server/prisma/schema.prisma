@@ -1,0 +1,466 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum StoreStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  STAFF
+  COACH
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ServiceType {
+  GROUP_CLASS
+  PRIVATE_SESSION
+  PACKAGE
+  PRODUCT
+}
+
+enum ScheduleStatus {
+  OPEN
+  FULL
+  CANCELED
+  ARCHIVED
+}
+
+enum BookingStatus {
+  CREATED
+  CONFIRMED
+  CHECKED_IN
+  COMPLETED
+  CANCELED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  REFUNDED
+  CANCELED
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum LedgerType {
+  RECHARGE
+  CONSUME
+  WRITE_OFF
+  REFUND
+  ADJUSTMENT
+}
+
+enum CouponStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  USED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+  CANCELED
+}
+
+model Tenant {
+  id           Int          @id @default(autoincrement())
+  name         String
+  code         String       @unique
+  status       TenantStatus @default(ACTIVE)
+  brandName    String?
+  logoUrl      String?
+  contactPhone String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  stores          Store[]
+  adminUsers      AdminUser[]
+  coaches         Coach[]
+  clients         Client[]
+  services        Service[]
+  schedules       Schedule[]
+  bookings        Booking[]
+  memberships     Membership[]
+  orders          Order[]
+  payments        Payment[]
+  ledgerEntries   LedgerEntry[]
+  couponTemplates CouponTemplate[]
+  clientCoupons   ClientCoupon[]
+  auditLogs       AuditLog[]
+}
+
+model Store {
+  id            Int         @id @default(autoincrement())
+  tenantId      Int
+  name          String
+  code          String
+  address       String?
+  phone         String?
+  businessHours Json?
+  status        StoreStatus @default(ACTIVE)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  adminUsers   AdminUser[]
+  coaches      Coach[]
+  services     Service[]
+  schedules    Schedule[]
+  bookings     Booking[]
+  memberships  Membership[]
+  orders       Order[]
+  payments     Payment[]
+  ledgerEntries LedgerEntry[]
+  clientCoupons ClientCoupon[]
+  auditLogs    AuditLog[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status])
+}
+
+model AdminUser {
+  id           Int        @id @default(autoincrement())
+  tenantId     Int
+  storeId      Int?
+  username     String
+  passwordHash String
+  role         Role       @default(STAFF)
+  displayName  String
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  store  Store? @relation(fields: [storeId], references: [id])
+
+  @@unique([tenantId, username])
+  @@index([tenantId, role])
+}
+
+model Coach {
+  id        Int        @id @default(autoincrement())
+  tenantId  Int
+  storeId   Int?
+  name      String
+  avatarUrl String?
+  bio       String?
+  phone     String?
+  status    UserStatus @default(ACTIVE)
+  sortOrder Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id])
+  store     Store?     @relation(fields: [storeId], references: [id])
+  services  Service[]
+  schedules Schedule[]
+
+  @@index([tenantId, storeId, status])
+  @@index([tenantId, sortOrder])
+}
+
+model Client {
+  id        Int        @id @default(autoincrement())
+  tenantId  Int
+  openid    String?
+  unionId   String?
+  phone     String?
+  nickname  String?
+  avatarUrl String?
+  status    UserStatus @default(ACTIVE)
+  tags      Json?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  bookings      Booking[]
+  memberships   Membership[]
+  orders        Order[]
+  ledgerEntries LedgerEntry[]
+  clientCoupons ClientCoupon[]
+
+  @@unique([tenantId, openid])
+  @@unique([tenantId, phone])
+}
+
+model Service {
+  id              Int         @id @default(autoincrement())
+  tenantId        Int
+  storeId         Int?
+  coachId         Int?
+  name            String
+  type            ServiceType
+  description     String?
+  price           Decimal     @db.Decimal(10, 2)
+  durationMinutes Int
+  status          StoreStatus  @default(ACTIVE)
+  sortOrder       Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  store    Store?    @relation(fields: [storeId], references: [id])
+  coach    Coach?    @relation(fields: [coachId], references: [id])
+  schedules Schedule[]
+  bookings  Booking[]
+  orders    Order[]
+
+  @@index([tenantId, storeId, status])
+  @@index([tenantId, type])
+}
+
+model Schedule {
+  id          Int            @id @default(autoincrement())
+  tenantId    Int
+  storeId     Int
+  serviceId   Int
+  coachId     Int
+  startAt     DateTime
+  endAt       DateTime
+  capacity    Int
+  bookedCount Int            @default(0)
+  status      ScheduleStatus @default(OPEN)
+  note        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  store    Store     @relation(fields: [storeId], references: [id])
+  service  Service   @relation(fields: [serviceId], references: [id])
+  coach    Coach     @relation(fields: [coachId], references: [id])
+  bookings Booking[]
+
+  @@index([tenantId, storeId, startAt])
+  @@index([tenantId, coachId, startAt])
+  @@index([tenantId, serviceId, startAt])
+}
+
+model Booking {
+  id               Int           @id @default(autoincrement())
+  tenantId         Int
+  storeId          Int
+  clientId         Int
+  serviceId        Int
+  scheduleId       Int
+  status           BookingStatus @default(CREATED)
+  bookingNo        String        @unique
+  paidAmount       Decimal       @default(0) @db.Decimal(10, 2)
+  usedMembershipId Int?
+  checkinAt        DateTime?
+  canceledAt       DateTime?
+  cancelReason     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  tenant         Tenant       @relation(fields: [tenantId], references: [id])
+  store          Store        @relation(fields: [storeId], references: [id])
+  client         Client       @relation(fields: [clientId], references: [id])
+  service        Service      @relation(fields: [serviceId], references: [id])
+  schedule       Schedule     @relation(fields: [scheduleId], references: [id])
+  usedMembership Membership?  @relation(fields: [usedMembershipId], references: [id])
+  ledgerEntries  LedgerEntry[]
+
+  @@index([tenantId, storeId, status, createdAt])
+  @@index([tenantId, clientId, createdAt])
+  @@index([tenantId, scheduleId])
+}
+
+model Membership {
+  id              Int              @id @default(autoincrement())
+  tenantId        Int
+  storeId         Int?
+  clientId        Int
+  name            String
+  type            String
+  totalTimes      Int?
+  remainingTimes  Int?
+  balanceAmount   Decimal          @default(0) @db.Decimal(10, 2)
+  status          MembershipStatus @default(ACTIVE)
+  startedAt       DateTime?
+  expiredAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  store         Store?       @relation(fields: [storeId], references: [id])
+  client        Client       @relation(fields: [clientId], references: [id])
+  bookings      Booking[]
+  orders        Order[]
+  ledgerEntries LedgerEntry[]
+
+  @@index([tenantId, clientId, status])
+  @@index([tenantId, expiredAt])
+}
+
+model Order {
+  id             Int         @id @default(autoincrement())
+  tenantId       Int
+  storeId        Int
+  clientId       Int
+  serviceId      Int?
+  membershipId   Int?
+  orderNo        String      @unique
+  status         OrderStatus @default(PENDING)
+  orderType      String
+  originalAmount Decimal     @db.Decimal(10, 2)
+  discountAmount Decimal     @default(0) @db.Decimal(10, 2)
+  paidAmount     Decimal     @default(0) @db.Decimal(10, 2)
+  payChannel     String?
+  paidAt         DateTime?
+  refundedAt     DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  store         Store        @relation(fields: [storeId], references: [id])
+  client        Client       @relation(fields: [clientId], references: [id])
+  service       Service?     @relation(fields: [serviceId], references: [id])
+  membership    Membership?  @relation(fields: [membershipId], references: [id])
+  payments      Payment[]
+  ledgerEntries LedgerEntry[]
+
+  @@index([tenantId, storeId, status, createdAt])
+  @@index([tenantId, clientId, createdAt])
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  tenantId       Int
+  storeId        Int
+  orderId        Int
+  channel        String
+  status         PaymentStatus @default(PENDING)
+  amount         Decimal       @db.Decimal(10, 2)
+  transactionId  String?
+  requestPayload Json?
+  notifyPayload  Json?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  store         Store        @relation(fields: [storeId], references: [id])
+  order         Order        @relation(fields: [orderId], references: [id])
+  ledgerEntries LedgerEntry[]
+
+  @@unique([channel, transactionId])
+  @@index([tenantId, orderId])
+}
+
+model LedgerEntry {
+  id           Int        @id @default(autoincrement())
+  tenantId     Int
+  storeId      Int
+  clientId     Int?
+  orderId      Int?
+  paymentId    Int?
+  bookingId    Int?
+  membershipId Int?
+  type         LedgerType
+  amount       Decimal    @db.Decimal(10, 2)
+  occurredAt   DateTime
+  source       String?
+  remark       String?
+  createdAt    DateTime   @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  store      Store       @relation(fields: [storeId], references: [id])
+  client     Client?     @relation(fields: [clientId], references: [id])
+  order      Order?      @relation(fields: [orderId], references: [id])
+  payment    Payment?    @relation(fields: [paymentId], references: [id])
+  booking    Booking?    @relation(fields: [bookingId], references: [id])
+  membership Membership? @relation(fields: [membershipId], references: [id])
+
+  @@index([tenantId, storeId, occurredAt])
+  @@index([tenantId, type, occurredAt])
+}
+
+model CouponTemplate {
+  id            Int          @id @default(autoincrement())
+  tenantId      Int
+  name          String
+  description   String?
+  couponType    String
+  discountValue Decimal      @db.Decimal(10, 2)
+  minimumSpend  Decimal?     @db.Decimal(10, 2)
+  validFrom     DateTime?
+  validTo       DateTime?
+  quota         Int?
+  perUserLimit  Int?
+  status        CouponStatus @default(ACTIVE)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  clientCoupons ClientCoupon[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, validTo])
+}
+
+model ClientCoupon {
+  id               Int          @id @default(autoincrement())
+  tenantId         Int
+  storeId          Int?
+  clientId         Int
+  couponTemplateId Int
+  status           CouponStatus @default(ACTIVE)
+  issuedAt         DateTime     @default(now())
+  usedAt           DateTime?
+  expiredAt        DateTime?
+  createdAt        DateTime     @default(now())
+
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  store          Store?         @relation(fields: [storeId], references: [id])
+  client         Client         @relation(fields: [clientId], references: [id])
+  couponTemplate CouponTemplate @relation(fields: [couponTemplateId], references: [id])
+
+  @@index([tenantId, clientId, status])
+  @@index([tenantId, couponTemplateId])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  tenantId   Int
+  storeId    Int?
+  actorType  String
+  actorId    Int?
+  action     String
+  entityType String
+  entityId   Int?
+  beforeData Json?
+  afterData  Json?
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  store  Store? @relation(fields: [storeId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, entityType, entityId])
+}
