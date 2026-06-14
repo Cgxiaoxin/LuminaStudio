@@ -8,6 +8,9 @@ import ServicesPage from "../pages/ServicesPage";
 import SchedulesPage from "../pages/SchedulesPage";
 import BookingsPage from "../pages/BookingsPage";
 import MembershipsPage from "../pages/MembershipsPage";
+import FinancePage from "../pages/FinancePage";
+import ReportsPage from "../pages/ReportsPage";
+import MarketingPage from "../pages/MarketingPage";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
 
 const pages = [
@@ -36,9 +39,9 @@ export function AdminRoutes() {
         <Route path="schedules" element={<SchedulesPage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="memberships" element={<MembershipsPage />} />
-        <Route path="finance" element={<PlaceholderPage title="Finance" />} />
-        <Route path="reports" element={<PlaceholderPage title="Reports" />} />
-        <Route path="marketing" element={<PlaceholderPage title="Marketing" />} />
+        <Route path="finance" element={<FinancePage />} />
+        <Route path="reports" element={<ReportsPage />} />
+        <Route path="marketing" element={<MarketingPage />} />
         <Route path="settings" element={<PlaceholderPage title="Settings" />} />
       </Routes>
     </AdminShell>

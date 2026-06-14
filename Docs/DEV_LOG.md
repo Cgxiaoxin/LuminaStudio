@@ -11,8 +11,8 @@
 | 领域 | 状态 | 完成度 |
 |------|------|--------|
 | Prisma Schema | ✅ 已完成 | 15 个模型，14 个枚举（Coach 合并到 AdminUser） |
-| 后端模块 | ✅ 核心链路完成 | Schedules/Customers/Memberships/Bookings/Orders/Payments 已实现 |
-| 管理后台页面 | ✅ 大部分完成 | 8/11 页面有真实 UI（Login/Dashboard/Stores/Staff/Services/Schedules/Bookings/Memberships） |
+| 后端模块 | ✅ 全部完成 | 15/15 模块均已实现 |
+| 管理后台页面 | ✅ 全部完成 | 11/11 页面均已实现 |
 | 小程序页面 | ✅ 全部完成 | 6/6 页面均有真实 UI，对接 API |
 | 前后端联调 | ❌ 未开始 | 所有前端均为 mock 数据 |
 | 数据库迁移 | 🟡 已生成 SQL | 迁移 SQL 已生成到 migrations/，需 MySQL 就绪后 apply |
@@ -20,6 +20,15 @@
 ---
 
 ## 开发日志
+
+### 2026-06-14 — Iteration 4 剩余模块收尾
+
+- 📒 **Ledger 后端**：只读账本查询（append-only），按时间/类型/门店过滤 + 汇总
+- 📊 **Reports 后端**：Dashboard 聚合数据、收入报表、预约统计
+- 🎟️ **Marketing 后端**：优惠券模板 CRUD + 发券/领券
+- 💰 **Admin Finance**：订单列表 + 账本流水（Tabs 切换）
+- 📈 **Admin Reports**：6 项关键指标总览卡片
+- 🏷️ **Admin Marketing**：优惠券模板管理（CRUD + 有效期）
 
 ### 2026-06-14 — Iteration 3 MiniApp 小程序页面完成
 
@@ -83,42 +92,32 @@
 | Payments | POST+Notify /payments | 支付发起 + 回调处理 + 自动入账 |
 | Common | GET /health, DTOs, Guards, Filters | 基础设施 + 全局异常过滤器 + API 客户端 |
 
-### ❌ 待实现
-
-| 模块 | 优先级 | 说明 |
-|------|--------|------|
-| Ledger | 🟡 中 | 财务流水（查询接口已有，需完善） |
-| Reports | 🟡 中 | 报表统计 |
-| Marketing | 🟢 低 | 优惠券营销 |
-
 ---
 
 ## 前端页面完成状态
 
 ### ✅ 已实现
 
-- 管理后台：Login、Dashboard、Stores、Staff、Services、Schedules、Bookings、Memberships
-- 小程序：Home（mock 数据）、Classes（mock 数据）
+- **Admin 11 页**：Login、Dashboard、Stores、Staff、Services、Schedules、Bookings、Memberships、Finance、Reports、Marketing
+- **MiniApp 6 页**：Home（门店选择器）、Classes（类型筛选）、ClassDetail、BookingConfirm、Bookings（分组+取消）、Profile（会员卡）
 
-### ❌ 待实现
+### 📋 剩余待办
 
-- 管理后台：Finance（订单+账本）、Reports、Marketing、Settings
+- [ ] 数据库迁移 apply（需 MySQL 就绪后 `prisma migrate deploy`）
+- [ ] 微信登录真实对接（目前后端是 mock，`weapp-login` 的 TODO）
+- [ ] 前后端联调收尾（前端已对接 API，需要整体跑通）
+- [ ] Seed 数据脚本（`prisma/seed.ts`，生成 demo 租户/门店/课程/排课）
+- [ ] 测试（后端单元测试 + 并发预约场景测试）
 
 ---
 
 ## 待办事项
 
-- [ ] 生成 Prisma 数据库迁移文件
-- [ ] 实现微信登录真实流程（目前后端是 mock）
-- [ ] 后端：实现 Customers、Schedules、Bookings 模块
-- [ ] 后端：实现 Memberships、Orders、Payments 模块
-- [ ] 后端：实现 Ledger、Reports、Marketing 模块
-- [ ] 管理后台：实现 Login 页面
-- [ ] 管理后台：前端 API 对接（接入真实接口）
-- [ ] 小程序：前端 API 对接（接入真实接口）
-- [ ] 小程序：实现微信登录流程
-- [ ] 添加 seed 数据脚本
-- [ ] 添加测试
+- [ ] 数据库迁移 apply（`prisma migrate deploy`，需 MySQL）
+- [ ] 微信登录真实对接（`auth.service.ts` 中 weapp-login 的 TODO）
+- [ ] 前后端联调收尾（需要数据库就绪后整体跑通）
+- [ ] Seed 数据脚本（`prisma/seed.ts`，demo 租户/门店/课程/排课）
+- [ ] 测试（后端单元测试 + 并发预约场景测试）
 
 ---
 
