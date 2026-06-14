@@ -1,5 +1,7 @@
 ﻿# LuminaStudio
 
+**English** | [中文](./README.zh.md)
+
 Multi-tenant operations SaaS for small and mid-sized Pilates and yoga studios. Supports studio activation, class scheduling, booking management, payment processing, check-ins, membership tracking, and reporting.
 
 ## Tech Stack
