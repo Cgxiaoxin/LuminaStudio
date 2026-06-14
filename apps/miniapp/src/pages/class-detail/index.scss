@@ -1,0 +1,100 @@
+.detail-page {
+  padding: 32rpx;
+}
+
+.detail-header {
+  margin-bottom: 32rpx;
+}
+
+.detail-name {
+  font-size: 44rpx;
+  font-weight: 800;
+  color: #17211c;
+  display: block;
+}
+
+.detail-type {
+  display: inline-block;
+  background: #eef4ea;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  color: #2e6f57;
+  margin-top: 8rpx;
+}
+
+.detail-section {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.detail-section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 16rpx;
+  color: #17211c;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8rpx 0;
+  font-size: 26rpx;
+}
+
+.info-label {
+  color: #6f776f;
+}
+
+.info-value {
+  color: #17211c;
+  font-weight: 600;
+}
+
+.coach-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 12rpx 0;
+}
+
+.coach-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #eef4ea;
+}
+
+.coach-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #17211c;
+}
+
+.coach-bio {
+  font-size: 22rpx;
+  color: #6f776f;
+}
+
+.description {
+  font-size: 26rpx;
+  color: #6f776f;
+  line-height: 1.6;
+}
+
+.book-btn {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #17211c;
+  color: #ffffff;
+  text-align: center;
+  padding: 28rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+}

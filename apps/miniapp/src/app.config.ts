@@ -1,5 +1,12 @@
 ﻿export default defineAppConfig({
-  pages: ["pages/home/index", "pages/classes/index", "pages/bookings/index", "pages/profile/index"],
+  pages: [
+    "pages/home/index",
+    "pages/classes/index",
+    "pages/class-detail/index",
+    "pages/booking-confirm/index",
+    "pages/bookings/index",
+    "pages/profile/index",
+  ],
   window: {
     backgroundTextStyle: "light",
     navigationBarBackgroundColor: "#ffffff",

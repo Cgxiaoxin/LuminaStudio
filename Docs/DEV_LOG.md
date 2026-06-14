@@ -13,13 +13,23 @@
 | Prisma Schema | ✅ 已完成 | 15 个模型，14 个枚举（Coach 合并到 AdminUser） |
 | 后端模块 | ✅ 核心链路完成 | Schedules/Customers/Memberships/Bookings/Orders/Payments 已实现 |
 | 管理后台页面 | ✅ 大部分完成 | 8/11 页面有真实 UI（Login/Dashboard/Stores/Staff/Services/Schedules/Bookings/Memberships） |
-| 小程序页面 | 🟡 部分完成 | 2/4 有真实 UI，2/4 为占位 |
+| 小程序页面 | ✅ 全部完成 | 6/6 页面均有真实 UI，对接 API |
 | 前后端联调 | ❌ 未开始 | 所有前端均为 mock 数据 |
 | 数据库迁移 | 🟡 已生成 SQL | 迁移 SQL 已生成到 migrations/，需 MySQL 就绪后 apply |
 
 ---
 
 ## 开发日志
+
+### 2026-06-14 — Iteration 3 MiniApp 小程序页面完成
+
+- 🏠 **首页**：门店选择器 + 对接 API 展示即将开始的课程
+- 📋 **课程列表**：对接 API + 类型筛选（All/Group/Private）
+- 📖 **课程详情页**（新增）：课程信息、教练信息、时段选择
+- ✅ **确认预约页**（新增）：预约摘要、会员卡选择、提交预约
+- 📅 **我的预约**：按 Upcoming/History 分组、取消操作
+- 👤 **个人中心**：用户信息、会员卡列表、微信登录入口
+- 🔗 全部对接后端 API（配置在 `services/api.ts`）
 
 ### 2026-06-14 — Iteration 2 Admin 后台页面完成
 
@@ -93,7 +103,6 @@
 ### ❌ 待实现
 
 - 管理后台：Finance（订单+账本）、Reports、Marketing、Settings
-- 小程序：Login、ClassDetail、BookingConfirm、Bookings、Profile
 
 ---
 

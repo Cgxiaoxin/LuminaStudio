@@ -1,99 +1,62 @@
-﻿import { Text, View } from "@tarojs/components";
-import { useNavigate } from "@tarojs/taro";
-import "./index.scss";
-
-const classes = [
-  {
-    id: 1,
-    name: "Morning Pilates",
-    type: "GROUP_CLASS",
-    coach: "Coach Li",
-    duration: 60,
-    price: 128,
-    spots: 3,
-    totalSpots: 12,
-  },
-  {
-    id: 2,
-    name: "Yoga Flow",
-    type: "GROUP_CLASS",
-    coach: "Coach Wang",
-    duration: 75,
-    price: 148,
-    spots: 5,
-    totalSpots: 15,
-  },
-  {
-    id: 3,
-    name: "Core Training",
-    type: "GROUP_CLASS",
-    coach: "Coach Zhang",
-    duration: 45,
-    price: 98,
-    spots: 2,
-    totalSpots: 10,
-  },
-  {
-    id: 4,
-    name: "Private Pilates",
-    type: "PRIVATE_SESSION",
-    coach: "Coach Li",
-    duration: 60,
-    price: 298,
-    spots: 1,
-    totalSpots: 1,
-  },
-];
-
-const typeLabels: Record<string, string> = {
-  GROUP_CLASS: "Group",
-  PRIVATE_SESSION: "Private",
-};
+﻿import { useState, useEffect } from 'react';
+import { Text, View } from '@tarojs/components';
+import { useNavigate } from '@tarojs/taro';
+import { request } from '../../services/api';
+import './index.scss';
 
 export default function ClassesPage() {
   const navigate = useNavigate();
+  const [schedules, setSchedules] = useState<any[]>([]);
+  const [filter, setFilter] = useState('ALL');
 
-  const goToDetail = (id: number) => {
-    // Navigate to class detail (not yet implemented)
-    console.log("Navigate to class detail:", id);
+  useEffect(() => {
+    request('/schedules?limit=50').then((res: any) => {
+      setSchedules(res.data || []);
+    }).catch(() => {});
+  }, []);
+
+  const filtered = filter === 'ALL'
+    ? schedules
+    : schedules.filter(s => s.service?.type === filter);
+
+  const typeLabels: Record<string, string> = {
+    GROUP_CLASS: 'Group',
+    PRIVATE_SESSION: 'Private',
   };
 
   return (
     <View className="classes-page">
       <View className="header">
         <Text className="title">Classes</Text>
-        <Text className="subtitle">{classes.length} classes available</Text>
+        <Text className="subtitle">{filtered.length} sessions available</Text>
       </View>
 
       <View className="filter-bar">
-        <View className="filter-item active">
-          <Text>All</Text>
-        </View>
-        <View className="filter-item">
-          <Text>Group</Text>
-        </View>
-        <View className="filter-item">
-          <Text>Private</Text>
-        </View>
+        {['ALL', 'GROUP_CLASS', 'PRIVATE_SESSION'].map(f => (
+          <View key={f} className={`filter-item ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
+            <Text>{f === 'ALL' ? 'All' : typeLabels[f] || f}</Text>
+          </View>
+        ))}
       </View>
 
       <View className="class-list">
-        {classes.map((cls) => (
-          <View key={cls.id} className="class-card" onClick={() => goToDetail(cls.id)}>
+        {filtered.map((s: any) => (
+          <View key={s.id} className="class-card" onClick={() => navigate({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
             <View className="class-header">
-              <Text className="class-name">{cls.name}</Text>
+              <Text className="class-name">{s.service?.name || '-'}</Text>
               <View className="class-type">
-                <Text>{typeLabels[cls.type]}</Text>
+                <Text>{typeLabels[s.service?.type] || s.service?.type}</Text>
               </View>
             </View>
             <View className="class-details">
-              <Text className="detail-item">Coach: {cls.coach}</Text>
-              <Text className="detail-item">{cls.duration} min</Text>
+              <Text className="detail-item">Coach: {s.coach?.displayName || '-'}</Text>
+              <Text className="detail-item">{s.service?.durationMinutes || 0} min</Text>
+              <Text className="detail-item">{new Date(s.startAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
             <View className="class-footer">
-              <Text className="class-price">¥{cls.price}</Text>
-              <Text className={cls.spots <= 2 ? "spots-low" : "spots"}>
-                {cls.spots} spots left
+              <Text className="class-price">¥{Number(s.service?.price || 0).toFixed(0)}</Text>
+              <Text className={s.capacity - s.bookedCount <= 2 ? 'spots-low' : 'spots'}>
+                {s.capacity - s.bookedCount} spots left
               </Text>
             </View>
           </View>
