@@ -95,6 +95,63 @@ body {
   border-radius: 8px;
 }
 
+/* ---- Login ---- */
+.login-page {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  background: #f6f7f4;
+}
+
+.login-card {
+  width: 380px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-header .brand-mark {
+  margin: 0 auto 12px;
+}
+
+/* ---- Sidebar footer ---- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar nav {
+  flex: 1;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid #26352d;
+  margin-top: auto;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #eef4ea;
+}
+
+.user-role {
+  font-size: 11px;
+  color: #aab8ad;
+  text-transform: uppercase;
+}
+
 @media (max-width: 840px) {
   .admin-shell {
     grid-template-columns: 1fr;

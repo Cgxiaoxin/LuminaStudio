@@ -3,13 +3,18 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "./AdminShell";
 import DashboardPage from "../pages/DashboardPage";
 import StoresPage from "../pages/StoresPage";
+import StaffPage from "../pages/StaffPage";
+import ServicesPage from "../pages/ServicesPage";
+import SchedulesPage from "../pages/SchedulesPage";
+import BookingsPage from "../pages/BookingsPage";
+import MembershipsPage from "../pages/MembershipsPage";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
 
 const pages = [
   { path: "dashboard", title: "Dashboard", icon: LayoutDashboard },
   { path: "stores", title: "Stores", icon: Store },
   { path: "staff", title: "Staff", icon: Users },
-  { path: "classes", title: "Classes", icon: CalendarDays },
+  { path: "classes", title: "Services", icon: CalendarDays },
   { path: "schedules", title: "Schedules", icon: CalendarDays },
   { path: "bookings", title: "Bookings", icon: Ticket },
   { path: "memberships", title: "Memberships", icon: Users },
@@ -26,9 +31,15 @@ export function AdminRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="stores" element={<StoresPage />} />
-        {pages.filter(p => p.path !== "dashboard" && p.path !== "stores").map((page) => (
-          <Route key={page.path} path={page.path} element={<PlaceholderPage title={page.title} />} />
-        ))}
+        <Route path="staff" element={<StaffPage />} />
+        <Route path="classes" element={<ServicesPage />} />
+        <Route path="schedules" element={<SchedulesPage />} />
+        <Route path="bookings" element={<BookingsPage />} />
+        <Route path="memberships" element={<MembershipsPage />} />
+        <Route path="finance" element={<PlaceholderPage title="Finance" />} />
+        <Route path="reports" element={<PlaceholderPage title="Reports" />} />
+        <Route path="marketing" element={<PlaceholderPage title="Marketing" />} />
+        <Route path="settings" element={<PlaceholderPage title="Settings" />} />
       </Routes>
     </AdminShell>
   );

@@ -12,7 +12,7 @@
 |------|------|--------|
 | Prisma Schema | ✅ 已完成 | 15 个模型，14 个枚举（Coach 合并到 AdminUser） |
 | 后端模块 | ✅ 核心链路完成 | Schedules/Customers/Memberships/Bookings/Orders/Payments 已实现 |
-| 管理后台页面 | 🟡 部分完成 | 2/11 有真实 UI，9/11 为占位 |
+| 管理后台页面 | ✅ 大部分完成 | 8/11 页面有真实 UI（Login/Dashboard/Stores/Staff/Services/Schedules/Bookings/Memberships） |
 | 小程序页面 | 🟡 部分完成 | 2/4 有真实 UI，2/4 为占位 |
 | 前后端联调 | ❌ 未开始 | 所有前端均为 mock 数据 |
 | 数据库迁移 | 🟡 已生成 SQL | 迁移 SQL 已生成到 migrations/，需 MySQL 就绪后 apply |
@@ -20,6 +20,17 @@
 ---
 
 ## 开发日志
+
+### 2026-06-14 — Iteration 2 Admin 后台页面完成
+
+- 🔐 **登录页**：LoginPage + AuthGuard 路由守卫 + JWT 管理
+- 📊 **Dashboard**：对接真实 API 数据（今日预约/核销/收入/活跃客户）
+- 👥 **Staff 页面**：员工+教练管理，含角色/职称/手机号
+- 📋 **Services 页面**：课程服务 CRUD
+- 📅 **Schedules 页面**：排课管理，含时间选择器
+- 📑 **Bookings 页面**：预约列表 + 状态过滤 + 核销/取消操作
+- 💳 **Memberships 页面**：会员卡发放/查看/取消
+- 🔄 AdminShell 增加用户信息和登出功能
 
 ### 2026-06-14 — Iteration 1 核心后端链路完成
 
@@ -76,13 +87,13 @@
 
 ### ✅ 已实现
 
-- 管理后台：Dashboard（mock 数据）、Stores（mock 数据）
+- 管理后台：Login、Dashboard、Stores、Staff、Services、Schedules、Bookings、Memberships
 - 小程序：Home（mock 数据）、Classes（mock 数据）
 
 ### ❌ 待实现
 
-- 管理后台：Login、Staff、Classes、Schedules、Bookings、Memberships、Finance、Reports、Marketing、Settings
-- 小程序：Bookings、Profile
+- 管理后台：Finance（订单+账本）、Reports、Marketing、Settings
+- 小程序：Login、ClassDetail、BookingConfirm、Bookings、Profile
 
 ---
 
