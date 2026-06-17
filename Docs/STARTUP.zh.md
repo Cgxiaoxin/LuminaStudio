@@ -32,7 +32,17 @@ npm run db:setup
 |------|------|----------|
 | 1 | `npm run dev:server` | API：`http://localhost:3000/api` |
 | 2 | `npm run dev:admin` | 管理后台：`http://localhost:5173` |
-| 3（可选） | `npm run dev:miniapp` | 微信小程序（用微信开发者工具打开编译产物） |
+| 3（可选） | `npm run dev:miniapp` | 微信小程序（见下方说明） |
+
+**微信小程序开发者工具：**
+
+1. 先在终端运行 `npm run dev:miniapp`，等待编译完成（产物在 `apps/miniapp/dist/`）
+2. 用微信开发者工具**导入本项目根目录** `LuminaStudio`（`project.config.json` 已配置 `miniprogramRoot` 指向 `apps/miniapp/dist/`）
+3. 若模拟器仍提示找不到 `app.json`，请确认 `dev:miniapp` 终端无报错，并在开发者工具中点击「编译」刷新
+
+也可直接导入 `apps/miniapp/dist` 目录（需先完成一次编译）。
+
+**本地联调提示：** 在开发者工具「详情 → 本地设置」中勾选 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书**，否则无法访问 `http://localhost:3000` 后端 API。
 
 **推荐启动顺序**：先 `dev:server`，再 `dev:admin`（后台依赖 API）。
 

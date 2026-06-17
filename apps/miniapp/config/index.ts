@@ -17,7 +17,20 @@ export default defineConfig(async (merge) => {
     copy: { patterns: [], options: {} },
     framework: "react",
     compiler: "webpack5",
-    mini: {},
+    mini: {
+      projectConfig: {
+        appid: "wx6ffa1da368b4ddb5",
+        projectname: "LuminaStudio",
+        description: "LuminaStudio WeChat Mini Program",
+        setting: {
+          urlCheck: false,
+          es6: true,
+          postcss: true,
+          minified: true,
+          enhance: true,
+        },
+      },
+    },
     h5: {},
   };
 
