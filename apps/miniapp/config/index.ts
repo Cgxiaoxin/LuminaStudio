@@ -1,4 +1,26 @@
 ﻿import { defineConfig } from "@tarojs/cli";
+import fs from "node:fs";
+import path from "node:path";
+
+function loadEnvFiles() {
+  const root = path.resolve(__dirname, "..");
+  const files = [".env.development.local", ".env.development", ".env.local", ".env"];
+  for (const file of files) {
+    const fullPath = path.join(root, file);
+    if (!fs.existsSync(fullPath)) continue;
+    for (const line of fs.readFileSync(fullPath, "utf-8").split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const value = trimmed.slice(eq + 1).trim();
+      if (key && process.env[key] === undefined) process.env[key] = value;
+    }
+  }
+}
+
+loadEnvFiles();
 
 export default defineConfig(async (merge) => {
   const baseConfig = {

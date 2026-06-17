@@ -27,7 +27,15 @@
   display: block;
   font-size: 28px;
   color: #6f776f;
-  margin-bottom: 48px;
+  margin-bottom: 16px;
+}
+
+.api-hint {
+  display: block;
+  font-size: 22px;
+  color: #9aa39a;
+  margin-bottom: 32px;
+  word-break: break-all;
 }
 
 .login-btn {

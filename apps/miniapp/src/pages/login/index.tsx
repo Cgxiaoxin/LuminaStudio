@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Button } from '@tarojs/components';
 import Taro, { useLoad } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { apiBaseUrl } from '../../services/config';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
@@ -44,6 +45,7 @@ export default function LoginPage() {
       <View className="login-card">
         <Text className="brand">{t('common.brand')}</Text>
         <Text className="subtitle">{t('login.subtitle')}</Text>
+        <Text className="api-hint">API: {apiBaseUrl}</Text>
         <Button className="login-btn" loading={loading} onClick={handleLogin}>
           {t('login.submit')}
         </Button>

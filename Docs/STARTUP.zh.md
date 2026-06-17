@@ -46,11 +46,19 @@ npm run db:setup
 
 **真机调试（重要）：** 手机上的 `localhost` 指向手机自身，无法访问电脑上的后端。请按以下步骤操作：
 
-1. 在电脑上运行 `ipconfig`，找到局域网 IPv4 地址（如 `192.168.1.100`）
-2. 复制 `apps/miniapp/.env.development.local.example` 为 `.env.development.local`
-3. 将 `TARO_APP_API` 改为 `http://你的IP:3000/api`
-4. 重新运行 `npm run dev:miniapp`（修改后需重新编译）
-5. 确保手机与电脑在同一 WiFi，且后端已启动（`npm run dev:server` 会监听 `0.0.0.0:3000`）
+1. 在电脑上运行 `ipconfig`，找到局域网 IPv4 地址（如 `192.168.0.185`）
+2. 编辑 `apps/miniapp/.env.development.local`（已为你预置，请确认 IP 正确）：
+   ```env
+   TARO_APP_API=http://你的IP:3000/api
+   ```
+3. **重新运行** `npm run dev:miniapp`（修改 env 后必须重新编译）
+4. 登录页会显示当前 API 地址，确认真机上是局域网 IP 而非 `localhost`
+5. 在手机浏览器访问 `http://你的IP:3000/api/health`，应返回 `{"status":"ok",...}`
+6. 若手机浏览器也打不开，多半是 **Windows 防火墙** 拦截了 3000 端口。以管理员身份运行 PowerShell：
+   ```powershell
+   netsh advfirewall firewall add rule name="LuminaStudio Dev API 3000" dir=in action=allow protocol=TCP localport=3000
+   ```
+7. 确保手机与电脑在同一 WiFi，且未连接「访客网络」（部分路由器会隔离设备）
 
 小程序界面默认为 **中文**。
 
