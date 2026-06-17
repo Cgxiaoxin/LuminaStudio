@@ -1,41 +1,33 @@
 import { useState, useEffect } from "react";
 import { Button, Card, Form, Input, message, Typography } from "antd";
 import { api } from "../services/api";
+import { useI18n } from "../i18n";
 
 const { Title, Text } = Typography;
 
-interface TenantSettings {
-  id: number;
-  name: string;
-  code: string;
-  brandName: string | null;
-  logoUrl: string | null;
-  contactPhone: string | null;
-}
-
 export default function SettingsPage() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
-
   const tenantId = localStorage.getItem("tenantId") || "1";
 
   useEffect(() => {
     setLoading(true);
     api.get(`/tenants/${tenantId}`)
       .then((res) => form.setFieldsValue(res.data))
-      .catch(() => message.error("Failed to load settings"))
+      .catch(() => message.error(t("common.loadFailed")))
       .finally(() => setLoading(false));
-  }, [form, tenantId]);
+  }, [form, tenantId, t]);
 
   const handleSave = async () => {
     const values = await form.validateFields();
     setSaving(true);
     try {
       await api.patch(`/tenants/${tenantId}`, values);
-      message.success("Settings saved");
+      message.success(t("pages.settings.saved"));
     } catch (err: any) {
-      message.error(err.response?.data?.message || "Save failed");
+      message.error(err.response?.data?.message || t("common.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -45,31 +37,30 @@ export default function SettingsPage() {
     <section className="page">
       <div className="page-header">
         <div>
-          <p className="eyebrow">LuminaStudio</p>
-          <Title level={2} style={{ margin: 0 }}>Settings</Title>
-          <Text type="secondary">Studio profile and branding</Text>
+          <p className="eyebrow">{t("common.eyebrow")}</p>
+          <Title level={2} style={{ margin: 0 }}>{t("pages.settings.title")}</Title>
+          <Text type="secondary">{t("pages.settings.subtitle")}</Text>
         </div>
       </div>
-
       <Card bordered={false} loading={loading}>
         <Form form={form} layout="vertical" style={{ maxWidth: 520 }}>
-          <Form.Item name="name" label="Studio Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label={t("pages.settings.studioName")} rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="code" label="Tenant Code">
+          <Form.Item name="code" label={t("pages.settings.tenantCode")}>
             <Input disabled />
           </Form.Item>
-          <Form.Item name="brandName" label="Brand Name">
+          <Form.Item name="brandName" label={t("pages.settings.brandName")}>
             <Input />
           </Form.Item>
-          <Form.Item name="logoUrl" label="Logo URL">
+          <Form.Item name="logoUrl" label={t("pages.settings.logoUrl")}>
             <Input placeholder="https://..." />
           </Form.Item>
-          <Form.Item name="contactPhone" label="Contact Phone">
+          <Form.Item name="contactPhone" label={t("pages.settings.contactPhone")}>
             <Input />
           </Form.Item>
           <Button type="primary" onClick={handleSave} loading={saving}>
-            Save Settings
+            {t("common.save")}
           </Button>
         </Form>
       </Card>

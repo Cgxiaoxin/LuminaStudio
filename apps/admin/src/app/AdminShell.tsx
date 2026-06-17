@@ -3,6 +3,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "antd";
 import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useI18n } from "../i18n";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 
 type ShellPage = {
   path: string;
@@ -16,6 +18,7 @@ type AdminShellProps = PropsWithChildren<{
 
 export function AdminShell({ children, pages }: AdminShellProps) {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const handleLogout = () => {
@@ -31,8 +34,8 @@ export function AdminShell({ children, pages }: AdminShellProps) {
         <div className="brand">
           <span className="brand-mark">LS</span>
           <div>
-            <strong>LuminaStudio</strong>
-            <span>Operations</span>
+            <strong>{t("common.brand")}</strong>
+            <span>{t("shell.operations")}</span>
           </div>
         </div>
         <nav>
@@ -48,10 +51,13 @@ export function AdminShell({ children, pages }: AdminShellProps) {
         </nav>
         <div className="sidebar-footer">
           <div className="user-info">
-            <span className="user-name">{user.displayName || "Admin"}</span>
-            <span className="user-role">{user.role || ""}</span>
+            <span className="user-name">{user.displayName || t("shell.admin")}</span>
+            <span className="user-role">{t(`roles.${user.role}`) || user.role || ""}</span>
           </div>
-          <Button type="text" icon={<LogOut size={16} />} onClick={handleLogout} />
+          <div className="sidebar-actions">
+            <LanguageSwitcher size="small" className="lang-switcher" />
+            <Button type="text" icon={<LogOut size={16} />} onClick={handleLogout} title={t("shell.logout")} />
+          </div>
         </div>
       </aside>
       <main className="main-panel">{children}</main>

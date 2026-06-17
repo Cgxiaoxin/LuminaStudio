@@ -97,10 +97,17 @@ body {
 
 /* ---- Login ---- */
 .login-page {
+  position: relative;
   display: grid;
   place-items: center;
   min-height: 100vh;
   background: #f6f7f4;
+}
+
+.login-toolbar {
+  position: absolute;
+  top: 20px;
+  right: 24px;
 }
 
 .login-card {
@@ -130,9 +137,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding-top: 16px;
   border-top: 1px solid #26352d;
   margin-top: auto;
+}
+
+.sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lang-switcher {
+  min-width: 108px;
+}
+
+.lang-switcher .ant-select-selector {
+  background: #26352d !important;
+  border-color: #3a4d42 !important;
+  color: #eef4ea !important;
 }
 
 .user-info {

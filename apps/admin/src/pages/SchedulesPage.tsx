@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Button, Card, Table, Tag, Space, Modal, Form, Input, InputNumber, DatePicker, Select, message, Popconfirm } from 'antd';
+import { Button, Card, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, message, Popconfirm } from 'antd';
 import { Plus, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
+import { useI18n } from '../i18n';
 
 const { RangePicker } = DatePicker;
 
@@ -23,6 +24,7 @@ interface Schedule {
 const statusColors: Record<string, string> = { OPEN: 'green', FULL: 'orange', CANCELED: 'red', ARCHIVED: 'default' };
 
 export default function SchedulesPage() {
+  const { t } = useI18n();
   const [data, setData] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,35 +51,35 @@ export default function SchedulesPage() {
         startAt: values.timeRange[0].toISOString(),
         endAt: values.timeRange[1].toISOString(),
       });
-      message.success('Created');
+      message.success(t('common.created'));
       setModalOpen(false);
       form.resetFields();
       fetch();
     } catch (err: any) {
-      message.error(err.response?.data?.message || 'Operation failed');
+      message.error(err.response?.data?.message || t('common.operationFailed'));
     }
   };
 
   const handleCancel = async (id: number) => {
     try {
       await api.delete(`/schedules/${id}`);
-      message.success('Canceled');
+      message.success(t('pages.schedules.canceled'));
       fetch();
-    } catch { message.error('Cancel failed') }
+    } catch { message.error(t('common.cancelFailed')) }
   };
 
   const columns = [
-    { title: 'Service', key: 'service', render: (_: any, r: Schedule) => r.service?.name || '-' },
-    { title: 'Coach', key: 'coach', render: (_: any, r: Schedule) => r.coach?.displayName || '-' },
-    { title: 'Start', dataIndex: 'startAt', render: (v: string) => dayjs(v).format('MM/DD HH:mm') },
-    { title: 'End', dataIndex: 'endAt', render: (v: string) => dayjs(v).format('HH:mm') },
-    { title: 'Capacity', key: 'capacity', render: (_: any, r: Schedule) => `${r.bookedCount}/${r.capacity}` },
-    { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={statusColors[s]}>{s}</Tag> },
+    { title: t('common.service'), key: 'service', render: (_: any, r: Schedule) => r.service?.name || '-' },
+    { title: t('common.coach'), key: 'coach', render: (_: any, r: Schedule) => r.coach?.displayName || '-' },
+    { title: t('common.start'), dataIndex: 'startAt', render: (v: string) => dayjs(v).format('MM/DD HH:mm') },
+    { title: t('common.end'), dataIndex: 'endAt', render: (v: string) => dayjs(v).format('HH:mm') },
+    { title: t('pages.schedules.spots'), key: 'capacity', render: (_: any, r: Schedule) => `${r.bookedCount}/${r.capacity}` },
+    { title: t('common.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColors[s]}>{t(`scheduleStatus.${s}`)}</Tag> },
     {
-      title: 'Actions', key: 'actions',
+      title: t('common.actions'), key: 'actions',
       render: (_: any, record: Schedule) => record.status !== 'CANCELED' && (
-        <Popconfirm title="Cancel this schedule?" onConfirm={() => handleCancel(record.id)}>
-          <Button type="link" danger icon={<Trash2 size={14} />}>Cancel</Button>
+        <Popconfirm title={t('pages.schedules.cancelConfirm')} onConfirm={() => handleCancel(record.id)}>
+          <Button type="link" danger icon={<Trash2 size={14} />}>{t('common.cancel')}</Button>
         </Popconfirm>
       ),
     },
@@ -87,34 +89,34 @@ export default function SchedulesPage() {
     <section className="page">
       <div className="page-header">
         <div>
-          <p className="eyebrow">LuminaStudio</p>
-          <h1>Schedules</h1>
+          <p className="eyebrow">{t('common.eyebrow')}</p>
+          <h1>{t('pages.schedules.title')}</h1>
         </div>
         <Button type="primary" icon={<Plus size={16} />} onClick={() => { form.resetFields(); setModalOpen(true) }}>
-          Add Schedule
+          {t('pages.schedules.add')}
         </Button>
       </div>
       <Card bordered={false}>
         <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 20 }} />
       </Card>
-      <Modal title="Add Schedule" open={modalOpen} onOk={handleCreate} onCancel={() => setModalOpen(false)} width={520}>
+      <Modal title={t('pages.schedules.add')} open={modalOpen} onOk={handleCreate} onCancel={() => setModalOpen(false)} width={520} okText={t('common.confirm')} cancelText={t('common.cancel')}>
         <Form form={form} layout="vertical">
-          <Form.Item name="storeId" label="Store ID" rules={[{ required: true }]}>
+          <Form.Item name="storeId" label={t('common.storeId')} rules={[{ required: true }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="serviceId" label="Service ID" rules={[{ required: true }]}>
+          <Form.Item name="serviceId" label={t('common.serviceId')} rules={[{ required: true }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="coachId" label="Coach ID" rules={[{ required: true }]}>
+          <Form.Item name="coachId" label={t('common.coachId')} rules={[{ required: true }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="timeRange" label="Time Range" rules={[{ required: true }]}>
+          <Form.Item name="timeRange" label={t('pages.schedules.timeRange')} rules={[{ required: true }]}>
             <RangePicker showTime style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="capacity" label="Capacity" rules={[{ required: true }]}>
+          <Form.Item name="capacity" label={t('common.capacity')} rules={[{ required: true }]}>
             <InputNumber min={1} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item name="note" label="Note">
+          <Form.Item name="note" label={t('common.note')}>
             <Input />
           </Form.Item>
         </Form>

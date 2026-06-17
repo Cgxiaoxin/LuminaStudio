@@ -12,22 +12,29 @@ import FinancePage from "../pages/FinancePage";
 import ReportsPage from "../pages/ReportsPage";
 import MarketingPage from "../pages/MarketingPage";
 import SettingsPage from "../pages/SettingsPage";
+import { useI18n } from "../i18n";
 
-const pages = [
-  { path: "dashboard", title: "Dashboard", icon: LayoutDashboard },
-  { path: "stores", title: "Stores", icon: Store },
-  { path: "staff", title: "Staff", icon: Users },
-  { path: "classes", title: "Services", icon: CalendarDays },
-  { path: "schedules", title: "Schedules", icon: CalendarDays },
-  { path: "bookings", title: "Bookings", icon: Ticket },
-  { path: "memberships", title: "Memberships", icon: Users },
-  { path: "finance", title: "Finance", icon: CreditCard },
-  { path: "reports", title: "Reports", icon: LayoutDashboard },
-  { path: "marketing", title: "Marketing", icon: Ticket },
-  { path: "settings", title: "Settings", icon: Settings },
-];
+const pageDefs = [
+  { path: "dashboard", titleKey: "nav.dashboard", icon: LayoutDashboard },
+  { path: "stores", titleKey: "nav.stores", icon: Store },
+  { path: "staff", titleKey: "nav.staff", icon: Users },
+  { path: "classes", titleKey: "nav.services", icon: CalendarDays },
+  { path: "schedules", titleKey: "nav.schedules", icon: CalendarDays },
+  { path: "bookings", titleKey: "nav.bookings", icon: Ticket },
+  { path: "memberships", titleKey: "nav.memberships", icon: Users },
+  { path: "finance", titleKey: "nav.finance", icon: CreditCard },
+  { path: "reports", titleKey: "nav.reports", icon: LayoutDashboard },
+  { path: "marketing", titleKey: "nav.marketing", icon: Ticket },
+  { path: "settings", titleKey: "nav.settings", icon: Settings },
+] as const;
 
 export function AdminRoutes() {
+  const { t } = useI18n();
+  const pages = pageDefs.map((page) => ({
+    ...page,
+    title: t(page.titleKey),
+  }));
+
   return (
     <AdminShell pages={pages}>
       <Routes>

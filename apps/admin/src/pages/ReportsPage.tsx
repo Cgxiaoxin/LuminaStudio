@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, DatePicker } from 'antd';
-import dayjs from 'dayjs';
+import { Card, Row, Col, Statistic } from 'antd';
 import { api } from '../services/api';
-
-const { RangePicker } = DatePicker;
+import { useI18n } from '../i18n';
 
 export default function ReportsPage() {
+  const { t } = useI18n();
   const [dashboard, setDashboard] = useState<any>({});
 
   useEffect(() => {
@@ -13,20 +12,20 @@ export default function ReportsPage() {
   }, []);
 
   const stats = [
-    { title: "Today's Bookings", value: dashboard.todayBookings },
-    { title: 'Check-ins', value: dashboard.todayCheckins },
-    { title: 'Revenue', value: dashboard.todayRevenue, prefix: '¥' },
-    { title: 'Active Clients', value: dashboard.activeClients },
-    { title: 'Services', value: dashboard.totalServices },
-    { title: 'Upcoming', value: dashboard.upcomingSchedules },
+    { title: t('pages.dashboard.todayBookings'), value: dashboard.todayBookings },
+    { title: t('pages.dashboard.checkins'), value: dashboard.todayCheckins },
+    { title: t('pages.dashboard.revenue'), value: dashboard.todayRevenue, prefix: '¥' },
+    { title: t('pages.dashboard.activeClients'), value: dashboard.activeClients },
+    { title: t('pages.reports.services'), value: dashboard.totalServices },
+    { title: t('pages.reports.upcoming'), value: dashboard.upcomingSchedules },
   ];
 
   return (
     <section className="page">
       <div className="page-header">
         <div>
-          <p className="eyebrow">LuminaStudio</p>
-          <h1>Reports</h1>
+          <p className="eyebrow">{t('common.eyebrow')}</p>
+          <h1>{t('pages.reports.title')}</h1>
         </div>
       </div>
       <Row gutter={[16, 16]}>

@@ -1,22 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Card, Col, Row, Statistic, Table, Tag } from 'antd';
 import { CalendarDays, CheckCircle, CreditCard, Users } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
+import { useI18n } from '../i18n';
 
 const statusColors: Record<string, string> = {
   CREATED: 'default', PENDING_PAYMENT: 'orange', CONFIRMED: 'blue',
   CHECKED_IN: 'green', COMPLETED: 'purple', CANCELED: 'red',
 };
 
-const columns = [
-  { title: 'Client', key: 'client', render: (_: any, r: any) => r.client?.nickname || r.client?.phone || '-' },
-  { title: 'Service', key: 'service', render: (_: any, r: any) => r.service?.name || '-' },
-  { title: 'Time', key: 'time', render: (_: any, r: any) => r.schedule ? dayjs(r.schedule.startAt).format('MM/DD HH:mm') : '-' },
-  { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={statusColors[s]}>{s}</Tag> },
-];
-
 export default function DashboardPage() {
+  const { t } = useI18n();
   const [stats, setStats] = useState({ todayBookings: 0, checkins: 0, revenue: 0, activeClients: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
 
@@ -24,9 +19,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         const today = dayjs().format('YYYY-MM-DD');
-        const [bookingRes] = await Promise.all([
-          api.get('/bookings', { params: { dateFrom: today, dateTo: today, limit: 10 } }),
-        ]);
+        const bookingRes = await api.get('/bookings', { params: { dateFrom: today, dateTo: today, limit: 10 } });
         const bookings = bookingRes.data.data || [];
         setRecentBookings(bookings);
         setStats({
@@ -36,40 +29,44 @@ export default function DashboardPage() {
           activeClients: new Set(bookings.map((b: any) => b.clientId)).size,
         });
       } catch {
-        // Fallback to mock defaults
+        // ignore
       }
     };
     fetchData();
   }, []);
 
+  const columns = useMemo(() => [
+    { title: t('common.client'), key: 'client', render: (_: any, r: any) => r.client?.nickname || r.client?.phone || '-' },
+    { title: t('common.service'), key: 'service', render: (_: any, r: any) => r.service?.name || '-' },
+    { title: t('common.time'), key: 'time', render: (_: any, r: any) => r.schedule ? dayjs(r.schedule.startAt).format('MM/DD HH:mm') : '-' },
+    { title: t('common.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColors[s]}>{t(`bookingStatus.${s}`)}</Tag> },
+  ], [t]);
+
   const statCards = [
-    { title: "Today's Bookings", value: stats.todayBookings, icon: CalendarDays, color: '#2e6f57' },
-    { title: 'Check-ins', value: stats.checkins, icon: CheckCircle, color: '#1f8a5b' },
-    { title: 'Revenue', value: stats.revenue, prefix: '¥', icon: CreditCard, color: '#2f6f9f' },
-    { title: 'Active Clients', value: stats.activeClients, icon: Users, color: '#c77700' },
+    { title: t('pages.dashboard.todayBookings'), value: stats.todayBookings, icon: CalendarDays, color: '#2e6f57' },
+    { title: t('pages.dashboard.checkins'), value: stats.checkins, icon: CheckCircle, color: '#1f8a5b' },
+    { title: t('pages.dashboard.revenue'), value: stats.revenue, prefix: '¥', icon: CreditCard, color: '#2f6f9f' },
+    { title: t('pages.dashboard.activeClients'), value: stats.activeClients, icon: Users, color: '#c77700' },
   ];
 
   return (
     <section className="page">
       <div className="page-header">
         <div>
-          <p className="eyebrow">LuminaStudio</p>
-          <h1>Dashboard</h1>
+          <p className="eyebrow">{t('common.eyebrow')}</p>
+          <h1>{t('pages.dashboard.title')}</h1>
         </div>
       </div>
       <Row gutter={[16, 16]}>
-        {statCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Col xs={24} sm={12} lg={6} key={stat.title}>
-              <Card bordered={false} className="stat-card">
-                <Statistic title={stat.title} value={stat.value} prefix={stat.prefix} valueStyle={{ color: stat.color }} />
-              </Card>
-            </Col>
-          );
-        })}
+        {statCards.map((stat) => (
+          <Col xs={24} sm={12} lg={6} key={stat.title}>
+            <Card bordered={false} className="stat-card">
+              <Statistic title={stat.title} value={stat.value} prefix={stat.prefix} valueStyle={{ color: stat.color }} />
+            </Card>
+          </Col>
+        ))}
       </Row>
-      <Card title="Recent Bookings" bordered={false} style={{ marginTop: 16 }}>
+      <Card title={t('pages.dashboard.recentBookings')} bordered={false} style={{ marginTop: 16 }}>
         <Table columns={columns} dataSource={recentBookings} rowKey="id" pagination={false} size="small" />
       </Card>
     </section>
