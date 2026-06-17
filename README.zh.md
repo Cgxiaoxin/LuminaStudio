@@ -145,6 +145,7 @@ npm run dev:miniapp  # Taro 微信小程序
 
 ## 文档
 
+- [启动指南](Docs/STARTUP.zh.md)
 - [开发日志](Docs/DEV_LOG.md) — 进度追踪与设计决策
 - [PRD 产品需求](Docs/PRD.md)
 - [系统架构](Docs/ARCHITECTURE.md)

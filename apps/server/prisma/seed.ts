@@ -68,8 +68,11 @@ async function main() {
     },
   });
 
-  await prisma.booking.deleteMany({ where: { tenantId: tenant.id } });
+  // Delete child records before parents (Payment blocks Order via FK RESTRICT)
+  await prisma.ledgerEntry.deleteMany({ where: { tenantId: tenant.id } });
+  await prisma.payment.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.order.deleteMany({ where: { tenantId: tenant.id } });
+  await prisma.booking.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.schedule.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.service.deleteMany({
     where: { tenantId: tenant.id, name: { in: ['Morning Pilates', 'Private Reformer'] } },

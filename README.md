@@ -141,6 +141,7 @@ Pass `X-Tenant-Id: 1` header for all API requests.
 
 ## Documentation
 
+- [Startup Guide](Docs/STARTUP.zh.md)
 - [Development Log](Docs/DEV_LOG.md) — Progress tracking and design decisions
 - [PRD](Docs/PRD.md) — Product requirements and scope
 - [Architecture](Docs/ARCHITECTURE.md) — System design and module overview
