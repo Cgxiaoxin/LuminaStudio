@@ -4,7 +4,10 @@ import { MembershipsService } from '../memberships/memberships.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
 import { generateBookingNo } from './booking-number.util';
+import { generateOrderNo } from '../orders/order-number.util';
 import { Prisma } from '@prisma/client';
+
+type CreateBookingInput = CreateBookingDto & { clientId: number };
 
 @Injectable()
 export class BookingsService {
@@ -13,7 +16,7 @@ export class BookingsService {
     private membershipsService: MembershipsService,
   ) {}
 
-  async create(dto: CreateBookingDto, tenantId: number, source: string = 'MANUAL') {
+  async create(dto: CreateBookingInput, tenantId: number, source: string = 'MANUAL') {
     return this.prisma.$transaction(async (tx) => {
       const schedule = await tx.schedule.findUnique({
         where: { id: dto.scheduleId },
@@ -102,7 +105,26 @@ export class BookingsService {
         },
       });
 
-      return booking;
+      let order = null;
+      if (status === 'PENDING_PAYMENT') {
+        order = await tx.order.create({
+          data: {
+            tenantId,
+            storeId: schedule.storeId,
+            clientId: dto.clientId,
+            bookingId: booking.id,
+            serviceId: schedule.serviceId,
+            orderNo: generateOrderNo(),
+            status: 'PENDING',
+            orderType: 'BOOKING',
+            originalAmount: schedule.service.price,
+            discountAmount: 0,
+            paidAmount: 0,
+          },
+        });
+      }
+
+      return { booking, order };
     });
   }
 

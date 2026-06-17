@@ -12,7 +12,7 @@ export default function HomePage() {
 
   useEffect(() => {
     request('/stores').then((res: any) => {
-      const list = res.data || [];
+      const list = res.data?.data || res.data || [];
       setStores(list);
       if (list.length > 0) setSelectedStore(String(list[0].id));
     }).catch(() => {});

@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
-import { useNavigate, showToast } from '@tarojs/taro';
-import { request, apiBaseUrl } from '../../services/api';
+import Taro, { useNavigate, showToast } from '@tarojs/taro';
+import { request } from '../../services/api';
 import './index.scss';
 import type { Membership } from '../../types';
 
@@ -10,16 +10,33 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [memberships, setMemberships] = useState<Membership[]>([]);
 
-  useEffect(() => {
-    request('/auth/me').then(setUser).catch(() => {});
-    request('/memberships?limit=10').then((res: any) => {
+  const loadProfile = () => {
+    request('/auth/me').then(setUser).catch(() => setUser(null));
+    request('/memberships?status=ACTIVE').then((res: any) => {
       setMemberships(res.data || []);
     }).catch(() => {});
-  }, []);
+  };
 
-  const handleLogin = () => {
-    // In a real app, this would call wx.login() and then weapp-login
-    showToast({ title: 'WeChat login not configured', icon: 'none' });
+  useEffect(() => { loadProfile(); }, []);
+
+  const handleLogin = async () => {
+    try {
+      const { code } = await Taro.login();
+      Taro.setStorageSync('tenantId', '1');
+      const res = await request('/auth/weapp-login', { method: 'POST', data: { code } });
+      Taro.setStorageSync('token', res.accessToken);
+      showToast({ title: 'Signed in', icon: 'success' });
+      loadProfile();
+    } catch {
+      showToast({ title: 'Login failed', icon: 'none' });
+    }
+  };
+
+  const handleLogout = () => {
+    Taro.removeStorageSync('token');
+    setUser(null);
+    setMemberships([]);
+    navigate({ url: '/pages/login/index' });
   };
 
   const statusLabels: Record<string, string> = {
@@ -58,16 +75,14 @@ export default function ProfilePage() {
                   <Text className="membership-info">
                     {m.type === 'DURATION_BASED'
                       ? 'Unlimited sessions'
-                      : `${m.remainingTimes ?? 0}/${m.totalTimes ?? 0} sessions remaining`
-                    }
+                      : `${m.remainingTimes ?? 0} / ${m.totalTimes ?? 0} sessions left`}
                   </Text>
-                  {m.expiredAt && (
-                    <Text className="membership-expiry">Valid until {new Date(m.expiredAt).toLocaleDateString('zh-CN')}</Text>
-                  )}
                 </View>
               ))
             )}
           </View>
+
+          <Button className="logout-btn" onClick={handleLogout}>Sign Out</Button>
         </>
       )}
     </View>

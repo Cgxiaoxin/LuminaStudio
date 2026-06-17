@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, ParseIntPipe, BadRequestException } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { CancelBookingDto } from './dto/cancel-booking.dto';
@@ -11,7 +11,15 @@ export class BookingsController {
 
   @Post()
   create(@Body() dto: CreateBookingDto, @Req() req: RequestWithUser) {
-    return this.bookingsService.create(dto, req.user.tenantId, req.user.type === 'client' ? 'WECHAT_MINIAPP' : 'ADMIN');
+    const clientId = req.user.type === 'client' ? req.user.id : dto.clientId;
+    if (!clientId) {
+      throw new BadRequestException('clientId is required');
+    }
+    return this.bookingsService.create(
+      { ...dto, clientId },
+      req.user.tenantId,
+      req.user.type === 'client' ? 'WECHAT_MINIAPP' : 'ADMIN',
+    );
   }
 
   @Get()
@@ -26,8 +34,9 @@ export class BookingsController {
     @Query('limit') limit?: number,
     @Req() req?: any,
   ) {
+    const resolvedClientId = req.user.type === 'client' ? req.user.id : clientId;
     return this.bookingsService.findAll(req.user.tenantId, {
-      clientId, scheduleId, status, storeId, dateFrom, dateTo, page, limit,
+      clientId: resolvedClientId, scheduleId, status, storeId, dateFrom, dateTo, page, limit,
     });
   }
 

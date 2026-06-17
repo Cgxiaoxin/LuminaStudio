@@ -16,7 +16,11 @@
     "build:miniapp": "npm run build:weapp -w @luminastudio/miniapp",
     "build": "npm run build:server && npm run build:admin && npm run build:miniapp",
     "prisma:generate": "npm run prisma:generate -w @luminastudio/server",
-    "prisma:migrate": "npm run prisma:migrate -w @luminastudio/server"
+    "prisma:migrate": "npm run prisma:migrate -w @luminastudio/server",
+    "prisma:seed": "npm run prisma:seed -w @luminastudio/server",
+    "db:setup": "npm run db:setup -w @luminastudio/server",
+    "test:server": "npm run test -w @luminastudio/server",
+    "e2e": "npm run e2e -w @luminastudio/server"
   },
   "engines": {
     "node": ">=18.18.0"

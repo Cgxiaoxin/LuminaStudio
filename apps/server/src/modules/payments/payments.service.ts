@@ -1,26 +1,34 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BookingsService } from '../bookings/bookings.service';
+import {
+  PAYMENT_GATEWAY,
+  PaymentGateway,
+} from './gateway/payment-gateway.interface';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private prisma: PrismaService,
-    private bookingsService: BookingsService,
+    @Inject(PAYMENT_GATEWAY) private gateway: PaymentGateway,
   ) {}
 
-  async createPayment(orderId: number, channel: string, tenantId: number) {
+  async createPayment(orderId: number, channel: string, tenantId: number, user?: { id: number; type: string }) {
     const order = await this.prisma.order.findFirst({
       where: { id: orderId, tenantId },
+      include: { client: { select: { openid: true } } },
     });
     if (!order) {
       throw new NotFoundException('Order not found');
+    }
+    if (user?.type === 'client' && order.clientId !== user.id) {
+      throw new BadRequestException('Cannot pay for another client order');
     }
     if (order.status !== 'PENDING') {
       throw new BadRequestException('Order is not pending');
     }
 
-    return this.prisma.payment.create({
+    const payment = await this.prisma.payment.create({
       data: {
         tenantId,
         storeId: order.storeId,
@@ -30,6 +38,16 @@ export class PaymentsService {
         amount: order.originalAmount,
       },
     });
+
+    const unified = await this.gateway.createUnifiedOrder({
+      orderId: order.id,
+      orderNo: order.orderNo,
+      amount: Number(order.originalAmount),
+      description: `Order ${order.orderNo}`,
+      clientOpenId: order.client.openid ?? undefined,
+    });
+
+    return { payment, unified };
   }
 
   async handleNotify(
@@ -57,13 +75,11 @@ export class PaymentsService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // Update payment
       await tx.payment.update({
         where: { id: paymentId },
         data: { status: 'PAID', transactionId },
       });
 
-      // Update order
       await tx.order.update({
         where: { id: payment.orderId },
         data: {
@@ -74,7 +90,6 @@ export class PaymentsService {
         },
       });
 
-      // Confirm booking if linked
       if (payment.order.bookingId) {
         await tx.booking.update({
           where: { id: payment.order.bookingId },
@@ -85,7 +100,6 @@ export class PaymentsService {
         });
       }
 
-      // Create ledger entry
       await tx.ledgerEntry.create({
         data: {
           tenantId,

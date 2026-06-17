@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdminLoginDto, WeappLoginDto } from './dto/login.dto';
+import { WeChatService } from './wechat.service';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private wechatService: WeChatService,
   ) {}
 
   async adminLogin(dto: AdminLoginDto, tenantId: number) {
@@ -53,22 +55,19 @@ export class AuthService {
     };
   }
 
-  async weappLogin(dto: WeappLoginDto) {
-    // TODO: Integrate with WeChat API to get openid
-    // For now, use code as mock openid
-    const openid = dto.code;
+  async weappLogin(dto: WeappLoginDto, tenantId = 1) {
+    const session = await this.wechatService.codeToSession(dto.code);
 
     let client = await this.prisma.client.findFirst({
-      where: { openid },
+      where: { tenantId, openid: session.openid },
     });
 
     if (!client) {
-      // Create new client with default tenant
-      // In production, resolve tenant from context
       client = await this.prisma.client.create({
         data: {
-          tenantId: 1,
-          openid,
+          tenantId,
+          openid: session.openid,
+          unionId: session.unionid,
           status: 'ACTIVE',
         },
       });
@@ -85,10 +84,27 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
       client: {
         id: client.id,
+        tenantId: client.tenantId,
         nickname: client.nickname,
         phone: client.phone,
+        avatarUrl: client.avatarUrl,
       },
     };
+  }
+
+  async bindPhone(clientId: number, tenantId: number, phone: string) {
+    const existing = await this.prisma.client.findFirst({
+      where: { tenantId, phone, NOT: { id: clientId } },
+    });
+    if (existing) {
+      throw new ConflictException('Phone number already bound to another account');
+    }
+
+    return this.prisma.client.update({
+      where: { id: clientId },
+      data: { phone },
+      select: { id: true, nickname: true, phone: true, avatarUrl: true },
+    });
   }
 
   async getProfile(userId: number, userType: string) {

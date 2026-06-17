@@ -9,9 +9,8 @@ export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}
 
   @Post('unified-order')
-  @Roles('OWNER', 'ADMIN', 'STAFF')
   createPayment(@Body() dto: CreatePaymentDto, @Req() req: RequestWithUser) {
-    return this.paymentsService.createPayment(dto.orderId, dto.channel, req.user.tenantId);
+    return this.paymentsService.createPayment(dto.orderId, dto.channel, req.user.tenantId, req.user);
   }
 
   @Public()

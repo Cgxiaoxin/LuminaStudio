@@ -16,18 +16,20 @@ export class MembershipsController {
   }
 
   @Get()
-  @Roles('OWNER', 'ADMIN', 'STAFF')
   findAll(
     @Query('clientId') clientId?: number,
+    @Query('status') status?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
     @Req() req?: any,
   ) {
-    return this.membershipsService.findAll(req.user.tenantId, { clientId, page, limit });
+    const resolvedClientId = req.user.type === 'client' ? req.user.id : clientId;
+    return this.membershipsService.findAll(req.user.tenantId, {
+      clientId: resolvedClientId, status, page, limit,
+    });
   }
 
   @Get(':id')
-  @Roles('OWNER', 'ADMIN', 'STAFF')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
     return this.membershipsService.findOne(id, req.user.tenantId);
   }

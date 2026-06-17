@@ -11,7 +11,7 @@ import MembershipsPage from "../pages/MembershipsPage";
 import FinancePage from "../pages/FinancePage";
 import ReportsPage from "../pages/ReportsPage";
 import MarketingPage from "../pages/MarketingPage";
-import { PlaceholderPage } from "../pages/PlaceholderPage";
+import SettingsPage from "../pages/SettingsPage";
 
 const pages = [
   { path: "dashboard", title: "Dashboard", icon: LayoutDashboard },
@@ -42,7 +42,7 @@ export function AdminRoutes() {
         <Route path="finance" element={<FinancePage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="marketing" element={<MarketingPage />} />
-        <Route path="settings" element={<PlaceholderPage title="Settings" />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Routes>
     </AdminShell>
   );

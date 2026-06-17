@@ -32,12 +32,13 @@ export class MembershipsService {
     return this.prisma.membership.create({ data });
   }
 
-  async findAll(tenantId: number, query: { clientId?: number; page?: number; limit?: number }) {
-    const { clientId, page = 1, limit = 20 } = query;
+  async findAll(tenantId: number, query: { clientId?: number; status?: string; page?: number; limit?: number }) {
+    const { clientId, status, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
     const where: Prisma.MembershipWhereInput = { tenantId };
 
     if (clientId) where.clientId = clientId;
+    if (status) where.status = status as any;
 
     const [data, total] = await Promise.all([
       this.prisma.membership.findMany({

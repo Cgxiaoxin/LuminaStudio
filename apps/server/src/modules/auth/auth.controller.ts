@@ -1,6 +1,6 @@
-import { Controller, Post, Body, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, UseGuards, Patch } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AdminLoginDto, WeappLoginDto } from './dto/login.dto';
+import { AdminLoginDto, WeappLoginDto, BindPhoneDto } from './dto/login.dto';
 import { Public } from './auth.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { TenantId } from '../../common/decorators/tenant-id.decorator';
@@ -18,13 +18,19 @@ export class AuthController {
 
   @Public()
   @Post('weapp-login')
-  async weappLogin(@Body() dto: WeappLoginDto) {
-    return this.authService.weappLogin(dto);
+  async weappLogin(@Body() dto: WeappLoginDto, @TenantId() tenantId?: number) {
+    return this.authService.weappLogin(dto, tenantId || 1);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getProfile(@Req() req: RequestWithUser) {
     return this.authService.getProfile(req.user.id, req.user.type);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('bind-phone')
+  async bindPhone(@Body() dto: BindPhoneDto, @Req() req: RequestWithUser) {
+    return this.authService.bindPhone(req.user.id, req.user.tenantId, dto.phone);
   }
 }

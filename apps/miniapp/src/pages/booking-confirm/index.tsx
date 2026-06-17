@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
-import { useRouter, useNavigate, showToast } from '@tarojs/taro';
+import Taro, { useRouter, useNavigate, showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
 import './index.scss';
 
@@ -12,8 +12,6 @@ export default function BookingConfirmPage() {
   const [memberships, setMemberships] = useState<any[]>([]);
   const [selectedMembership, setSelectedMembership] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const token = '';
 
   useEffect(() => {
     if (!scheduleId) return;
@@ -29,11 +27,25 @@ export default function BookingConfirmPage() {
     try {
       const payload: any = { scheduleId, source: 'WECHAT_MINIAPP' };
       if (selectedMembership) payload.membershipId = selectedMembership;
-      await request('/bookings', { method: 'POST', data: payload });
+      const result: any = await request('/bookings', { method: 'POST', data: payload });
+
+      if (result.order) {
+        const payRes: any = await request('/payments/unified-order', {
+          method: 'POST',
+          data: { orderId: result.order.id, channel: 'wechat' },
+        });
+        if (payRes.unified?.devMode) {
+          await request(`/payments/notify/${payRes.payment.id}`, {
+            method: 'POST',
+            data: { transactionId: `dev_tx_${Date.now()}`, success: true },
+          });
+        }
+      }
+
       showToast({ title: 'Booked!', icon: 'success' });
       setTimeout(() => navigate({ url: '/pages/bookings/index' }), 1500);
     } catch (err: any) {
-      showToast({ title: err.message || 'Failed', icon: 'error' });
+      showToast({ title: err.message || 'Failed', icon: 'none' });
     } finally {
       setSubmitting(false);
     }

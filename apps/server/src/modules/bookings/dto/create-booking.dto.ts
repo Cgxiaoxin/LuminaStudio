@@ -6,8 +6,8 @@ export class CreateBookingDto {
   scheduleId: number;
 
   @IsInt()
-  @IsNotEmpty()
-  clientId: number;
+  @IsOptional()
+  clientId?: number;
 
   @IsInt()
   @IsOptional()

@@ -15,3 +15,9 @@ export class WeappLoginDto {
   @IsNotEmpty()
   code: string;
 }
+
+export class BindPhoneDto {
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+}

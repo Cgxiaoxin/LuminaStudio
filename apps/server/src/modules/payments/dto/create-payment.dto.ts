@@ -1,6 +1,8 @@
-import { IsInt, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreatePaymentDto {
+  @Type(() => Number)
   @IsInt()
   @IsNotEmpty()
   orderId: number;
@@ -9,7 +11,8 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   channel: string;
 
+  @IsOptional()
+  @Type(() => Number)
   @IsNumber()
-  @IsNotEmpty()
-  amount: number;
+  amount?: number;
 }
