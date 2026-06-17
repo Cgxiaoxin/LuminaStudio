@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Text, View } from '@tarojs/components';
-import { useRouter, useNavigate } from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function ClassDetailPage() {
   const router = useRouter();
-  const navigate = useNavigate();
   const scheduleId = Number(router.params.scheduleId);
   const [schedule, setSchedule] = useState<any>(null);
 
@@ -71,7 +70,7 @@ export default function ClassDetailPage() {
         </View>
       )}
 
-      <View className="book-btn" onClick={() => navigate({ url: `/pages/booking-confirm/index?scheduleId=${schedule.id}` })}>
+      <View className="book-btn" onClick={() => Taro.navigateTo({ url: `/pages/booking-confirm/index?scheduleId=${schedule.id}` })}>
         {t('classDetail.bookNow')} - ¥{Number(schedule.service?.price || 0).toFixed(0)}
       </View>
     </View>

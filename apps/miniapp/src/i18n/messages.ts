@@ -108,8 +108,6 @@ export const messages = {
   },
 } as const;
 
-type MessageTree = typeof messages;
-
 function getNestedValue(obj: Record<string, unknown>, path: string): string | undefined {
   const value = path.split('.').reduce<unknown>((acc, part) => {
     if (acc && typeof acc === 'object' && part in (acc as Record<string, unknown>)) {
@@ -120,8 +118,6 @@ function getNestedValue(obj: Record<string, unknown>, path: string): string | un
   return typeof value === 'string' ? value : undefined;
 }
 
-export function t(key: keyof MessageTree extends string ? string : never): string;
-export function t(key: string, params?: Record<string, string | number>): string;
 export function t(key: string, params?: Record<string, string | number>): string {
   let value = getNestedValue(messages as unknown as Record<string, unknown>, key) ?? key;
   if (params) {

@@ -1,13 +1,12 @@
 ﻿import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
-import Taro, { useNavigate, showToast } from '@tarojs/taro';
+import Taro, { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { membershipStatusLabel, t } from '../../i18n/messages';
 import './index.scss';
 import type { Membership } from '../../types';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [memberships, setMemberships] = useState<Membership[]>([]);
 
@@ -37,7 +36,7 @@ export default function ProfilePage() {
     Taro.removeStorageSync('token');
     setUser(null);
     setMemberships([]);
-    navigate({ url: '/pages/login/index' });
+    Taro.reLaunch({ url: '/pages/login/index' });
   };
 
   return (

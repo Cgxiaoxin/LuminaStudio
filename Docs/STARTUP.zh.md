@@ -44,6 +44,14 @@ npm run db:setup
 
 **本地联调提示：** 在开发者工具「详情 → 本地设置」中勾选 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书**，否则无法访问 `http://localhost:3000` 后端 API。根目录 `project.config.json` 已设置 `"urlCheck": false`，重新导入项目或点击「编译」后生效。
 
+**真机调试（重要）：** 手机上的 `localhost` 指向手机自身，无法访问电脑上的后端。请按以下步骤操作：
+
+1. 在电脑上运行 `ipconfig`，找到局域网 IPv4 地址（如 `192.168.1.100`）
+2. 复制 `apps/miniapp/.env.development.local.example` 为 `.env.development.local`
+3. 将 `TARO_APP_API` 改为 `http://你的IP:3000/api`
+4. 重新运行 `npm run dev:miniapp`（修改后需重新编译）
+5. 确保手机与电脑在同一 WiFi，且后端已启动（`npm run dev:server` 会监听 `0.0.0.0:3000`）
+
 小程序界面默认为 **中文**。
 
 **推荐启动顺序**：先 `dev:server`，再 `dev:admin`（后台依赖 API）。

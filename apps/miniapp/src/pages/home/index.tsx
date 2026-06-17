@@ -1,12 +1,11 @@
 ﻿import { useState, useEffect } from 'react';
 import { Text, View, Picker } from '@tarojs/components';
-import { useNavigate } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import { request } from '../../services/api';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function HomePage() {
-  const navigate = useNavigate();
   const [selectedStore, setSelectedStore] = useState('');
   const [stores, setStores] = useState<{ id: number; name: string }[]>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -47,7 +46,7 @@ export default function HomePage() {
           <Text className="section-title">{t('home.upcomingClasses')}</Text>
           <View className="class-list">
             {schedules.map((s: any) => (
-              <View key={s.id} className="class-card" onClick={() => navigate({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
+              <View key={s.id} className="class-card" onClick={() => Taro.navigateTo({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
                 <View className="class-info">
                   <Text className="class-name">{s.service?.name || '-'}</Text>
                   <Text className="class-coach">{s.coach?.displayName || '-'}</Text>
@@ -67,15 +66,15 @@ export default function HomePage() {
       <View className="section">
         <Text className="section-title">{t('home.quickActions')}</Text>
         <View className="action-grid">
-          <View className="action-item" onClick={() => navigate({ url: '/pages/classes/index' })}>
+          <View className="action-item" onClick={() => Taro.switchTab({ url: '/pages/classes/index' })}>
             <Text className="action-icon">📚</Text>
             <Text className="action-text">{t('home.browseClasses')}</Text>
           </View>
-          <View className="action-item" onClick={() => navigate({ url: '/pages/bookings/index' })}>
+          <View className="action-item" onClick={() => Taro.switchTab({ url: '/pages/bookings/index' })}>
             <Text className="action-icon">📅</Text>
             <Text className="action-text">{t('home.myBookings')}</Text>
           </View>
-          <View className="action-item" onClick={() => navigate({ url: '/pages/profile/index' })}>
+          <View className="action-item" onClick={() => Taro.switchTab({ url: '/pages/profile/index' })}>
             <Text className="action-icon">👤</Text>
             <Text className="action-text">{t('home.profile')}</Text>
           </View>

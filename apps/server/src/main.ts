@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  await app.listen(port);
+  await app.listen(port, "0.0.0.0");
 }
 
 bootstrap();

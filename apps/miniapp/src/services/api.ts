@@ -11,8 +11,8 @@ export function formatRequestError(err: unknown): string {
   if (errMsg.includes('url not in domain list')) {
     return t('errors.domainNotAllowed');
   }
-  if (errMsg.includes('request:fail')) {
-    return t('errors.networkFailed');
+  if (errMsg.includes('CONNECTION_REFUSED') || errMsg.includes('errcode:-102') || errMsg.includes('-102')) {
+    return '无法连接服务器：真机调试请将 API 地址改为电脑局域网 IP（见 .env.development.local）';
   }
   return errMsg || t('common.failed');
 }

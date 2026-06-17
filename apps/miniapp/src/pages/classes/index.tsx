@@ -1,12 +1,11 @@
 ﻿import { useState, useEffect } from 'react';
 import { Text, View } from '@tarojs/components';
-import { useNavigate } from '@tarojs/taro';
+import Taro from '@tarojs/taro';
 import { request } from '../../services/api';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function ClassesPage() {
-  const navigate = useNavigate();
   const [schedules, setSchedules] = useState<any[]>([]);
   const [filter, setFilter] = useState('ALL');
 
@@ -42,7 +41,7 @@ export default function ClassesPage() {
 
       <View className="class-list">
         {filtered.map((s: any) => (
-          <View key={s.id} className="class-card" onClick={() => navigate({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
+          <View key={s.id} className="class-card" onClick={() => Taro.navigateTo({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
             <View className="class-header">
               <Text className="class-name">{s.service?.name || '-'}</Text>
               <View className="class-type">

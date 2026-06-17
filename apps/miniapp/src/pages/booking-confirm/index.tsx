@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
-import Taro, { useRouter, useNavigate, showToast } from '@tarojs/taro';
+import Taro, { useRouter, showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function BookingConfirmPage() {
   const router = useRouter();
-  const navigate = useNavigate();
   const scheduleId = Number(router.params.scheduleId);
   const [schedule, setSchedule] = useState<any>(null);
   const [memberships, setMemberships] = useState<any[]>([]);
@@ -44,7 +43,7 @@ export default function BookingConfirmPage() {
       }
 
       showToast({ title: t('bookingConfirm.success'), icon: 'success' });
-      setTimeout(() => navigate({ url: '/pages/bookings/index' }), 1500);
+      setTimeout(() => Taro.switchTab({ url: '/pages/bookings/index' }), 1500);
     } catch (err: any) {
       showToast({ title: err.message || t('common.failed'), icon: 'none' });
     } finally {
