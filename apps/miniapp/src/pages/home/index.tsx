@@ -2,6 +2,7 @@
 import { Text, View, Picker } from '@tarojs/components';
 import { useNavigate } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function HomePage() {
@@ -30,12 +31,12 @@ export default function HomePage() {
   return (
     <View className="home-page">
       <View className="header">
-        <Text className="brand">LuminaStudio</Text>
+        <Text className="brand">{t('common.brand')}</Text>
         <Picker mode="selector" range={storeRange} value={stores.findIndex(s => String(s.id) === selectedStore)}
           onChange={(e) => setSelectedStore(String(stores[e.detail.value]?.id || selectedStore))}
         >
           <View className="store-selector">
-            <Text className="store-name">{stores.find(s => String(s.id) === selectedStore)?.name || 'Select Store'}</Text>
+            <Text className="store-name">{stores.find(s => String(s.id) === selectedStore)?.name || t('home.selectStore')}</Text>
             <Text className="arrow">▼</Text>
           </View>
         </Picker>
@@ -43,7 +44,7 @@ export default function HomePage() {
 
       {schedules.length > 0 && (
         <View className="section">
-          <Text className="section-title">Upcoming Classes</Text>
+          <Text className="section-title">{t('home.upcomingClasses')}</Text>
           <View className="class-list">
             {schedules.map((s: any) => (
               <View key={s.id} className="class-card" onClick={() => navigate({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}>
@@ -54,7 +55,7 @@ export default function HomePage() {
                 </View>
                 <View className="class-spots">
                   <Text className={s.capacity - s.bookedCount <= 2 ? 'spots-low' : 'spots'}>
-                    {s.capacity - s.bookedCount} spots left
+                    {t('home.spotsLeft', { n: s.capacity - s.bookedCount })}
                   </Text>
                 </View>
               </View>
@@ -64,19 +65,19 @@ export default function HomePage() {
       )}
 
       <View className="section">
-        <Text className="section-title">Quick Actions</Text>
+        <Text className="section-title">{t('home.quickActions')}</Text>
         <View className="action-grid">
           <View className="action-item" onClick={() => navigate({ url: '/pages/classes/index' })}>
             <Text className="action-icon">📚</Text>
-            <Text className="action-text">Browse Classes</Text>
+            <Text className="action-text">{t('home.browseClasses')}</Text>
           </View>
           <View className="action-item" onClick={() => navigate({ url: '/pages/bookings/index' })}>
             <Text className="action-icon">📅</Text>
-            <Text className="action-text">My Bookings</Text>
+            <Text className="action-text">{t('home.myBookings')}</Text>
           </View>
           <View className="action-item" onClick={() => navigate({ url: '/pages/profile/index' })}>
             <Text className="action-icon">👤</Text>
-            <Text className="action-text">Profile</Text>
+            <Text className="action-text">{t('home.profile')}</Text>
           </View>
         </View>
       </View>

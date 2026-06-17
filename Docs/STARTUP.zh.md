@@ -42,7 +42,9 @@ npm run db:setup
 
 也可直接导入 `apps/miniapp/dist` 目录（需先完成一次编译）。
 
-**本地联调提示：** 在开发者工具「详情 → 本地设置」中勾选 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书**，否则无法访问 `http://localhost:3000` 后端 API。
+**本地联调提示：** 在开发者工具「详情 → 本地设置」中勾选 **不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书**，否则无法访问 `http://localhost:3000` 后端 API。根目录 `project.config.json` 已设置 `"urlCheck": false`，重新导入项目或点击「编译」后生效。
+
+小程序界面默认为 **中文**。
 
 **推荐启动顺序**：先 `dev:server`，再 `dev:admin`（后台依赖 API）。
 

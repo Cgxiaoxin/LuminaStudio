@@ -1,6 +1,21 @@
 import Taro from '@tarojs/taro';
+import { apiBaseUrl } from './config';
+import { t } from '../i18n/messages';
 
-export const apiBaseUrl = 'http://localhost:3000/api';
+export function formatRequestError(err: unknown): string {
+  const errMsg =
+    (err as { errMsg?: string })?.errMsg ||
+    (err as { message?: string })?.message ||
+    '';
+
+  if (errMsg.includes('url not in domain list')) {
+    return t('errors.domainNotAllowed');
+  }
+  if (errMsg.includes('request:fail')) {
+    return t('errors.networkFailed');
+  }
+  return errMsg || t('common.failed');
+}
 
 export function request<T = any>(url: string, options?: Taro.request.Option): Promise<T> {
   const token = Taro.getStorageSync('token');
@@ -20,11 +35,17 @@ export function request<T = any>(url: string, options?: Taro.request.Option): Pr
           Taro.removeStorageSync('token');
           Taro.removeStorageSync('tenantId');
           Taro.reLaunch({ url: '/pages/login/index' });
+          reject(new Error(t('errors.unauthorized')));
+          return;
+        }
+        if (res.statusCode >= 400) {
+          const msg = (res.data as { message?: string })?.message || t('common.failed');
+          reject(new Error(msg));
           return;
         }
         resolve(res.data as T);
       },
-      fail: (err) => reject(err),
+      fail: (err) => reject(new Error(formatRequestError(err))),
     });
   });
 }

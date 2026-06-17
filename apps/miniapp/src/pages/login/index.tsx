@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, Button } from '@tarojs/components';
 import Taro, { useLoad } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function LoginPage() {
@@ -20,7 +21,7 @@ export default function LoginPage() {
     try {
       const { code } = await Taro.login();
       if (!code) {
-        throw new Error('WeChat login failed');
+        throw new Error(t('errors.wechatLoginFailed'));
       }
       Taro.setStorageSync('tenantId', '1');
       const res = await request('/auth/weapp-login', {
@@ -29,10 +30,10 @@ export default function LoginPage() {
       });
       Taro.setStorageSync('token', res.accessToken);
       Taro.setStorageSync('tenantId', String(res.client?.tenantId || 1));
-      Taro.showToast({ title: 'Signed in', icon: 'success' });
+      Taro.showToast({ title: t('login.success'), icon: 'success' });
       setTimeout(() => Taro.switchTab({ url: '/pages/home/index' }), 500);
     } catch (err: any) {
-      Taro.showToast({ title: err.message || 'Login failed', icon: 'none' });
+      Taro.showToast({ title: err.message || t('errors.loginFailed'), icon: 'none' });
     } finally {
       setLoading(false);
     }
@@ -41,10 +42,10 @@ export default function LoginPage() {
   return (
     <View className="login-page">
       <View className="login-card">
-        <Text className="brand">LuminaStudio</Text>
-        <Text className="subtitle">Sign in to book classes and manage memberships</Text>
+        <Text className="brand">{t('common.brand')}</Text>
+        <Text className="subtitle">{t('login.subtitle')}</Text>
         <Button className="login-btn" loading={loading} onClick={handleLogin}>
-          Sign In with WeChat
+          {t('login.submit')}
         </Button>
       </View>
     </View>

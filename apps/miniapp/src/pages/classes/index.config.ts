@@ -1,3 +1,3 @@
 ﻿export default definePageConfig({
-  navigationBarTitleText: "Classes",
+  navigationBarTitleText: '课程',
 });

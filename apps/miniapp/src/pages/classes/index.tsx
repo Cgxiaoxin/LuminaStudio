@@ -2,6 +2,7 @@
 import { Text, View } from '@tarojs/components';
 import { useNavigate } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function ClassesPage() {
@@ -20,21 +21,21 @@ export default function ClassesPage() {
     : schedules.filter(s => s.service?.type === filter);
 
   const typeLabels: Record<string, string> = {
-    GROUP_CLASS: 'Group',
-    PRIVATE_SESSION: 'Private',
+    GROUP_CLASS: t('classes.group'),
+    PRIVATE_SESSION: t('classes.private'),
   };
 
   return (
     <View className="classes-page">
       <View className="header">
-        <Text className="title">Classes</Text>
-        <Text className="subtitle">{filtered.length} sessions available</Text>
+        <Text className="title">{t('classes.title')}</Text>
+        <Text className="subtitle">{t('classes.sessionsAvailable', { n: filtered.length })}</Text>
       </View>
 
       <View className="filter-bar">
         {['ALL', 'GROUP_CLASS', 'PRIVATE_SESSION'].map(f => (
           <View key={f} className={`filter-item ${filter === f ? 'active' : ''}`} onClick={() => setFilter(f)}>
-            <Text>{f === 'ALL' ? 'All' : typeLabels[f] || f}</Text>
+            <Text>{f === 'ALL' ? t('classes.all') : typeLabels[f] || f}</Text>
           </View>
         ))}
       </View>
@@ -49,14 +50,14 @@ export default function ClassesPage() {
               </View>
             </View>
             <View className="class-details">
-              <Text className="detail-item">Coach: {s.coach?.displayName || '-'}</Text>
-              <Text className="detail-item">{s.service?.durationMinutes || 0} min</Text>
+              <Text className="detail-item">{t('classes.coachPrefix')}{s.coach?.displayName || '-'}</Text>
+              <Text className="detail-item">{s.service?.durationMinutes || 0}{t('common.min')}</Text>
               <Text className="detail-item">{new Date(s.startAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</Text>
             </View>
             <View className="class-footer">
               <Text className="class-price">¥{Number(s.service?.price || 0).toFixed(0)}</Text>
               <Text className={s.capacity - s.bookedCount <= 2 ? 'spots-low' : 'spots'}>
-                {s.capacity - s.bookedCount} spots left
+                {t('classes.spotsLeft', { n: s.capacity - s.bookedCount })}
               </Text>
             </View>
           </View>

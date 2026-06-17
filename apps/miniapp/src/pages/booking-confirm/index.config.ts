@@ -1,1 +1,1 @@
-export default definePageConfig({ navigationBarTitleText: 'Confirm Booking' });
+export default definePageConfig({ navigationBarTitleText: '确认预约' });
