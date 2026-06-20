@@ -1,0 +1,81 @@
+page {
+  background: #f6f7f4;
+}
+
+.profile-sub-page {
+  padding: 32rpx;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.stats-item {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 28rpx 20rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.stats-value {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #17211c;
+  margin-bottom: 8rpx;
+}
+
+.stats-label {
+  display: block;
+  font-size: 24rpx;
+  color: #6f776f;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #17211c;
+  margin-bottom: 16rpx;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.history-card {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.history-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.history-card__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #17211c;
+}
+
+.history-card__status {
+  font-size: 22rpx;
+  color: #2e6f57;
+  font-weight: 600;
+}
+
+.history-card__time {
+  font-size: 24rpx;
+  color: #6f776f;
+}

@@ -2,6 +2,8 @@
 import { Text, View, Button } from '@tarojs/components';
 import { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { EmptyState } from '../../components/EmptyState';
+import { LoadingState } from '../../components/LoadingState';
 import { bookingStatusLabel, t } from '../../i18n/messages';
 import type { Booking } from '../../types';
 import './index.scss';
@@ -18,13 +20,18 @@ const statusColors: Record<string, string> = {
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [tab, setTab] = useState('upcoming');
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadBookings = () => {
+    setLoading(true);
     const statusFilter = tab === 'upcoming' ? 'CREATED,CONFIRMED,PENDING_PAYMENT' : 'CHECKED_IN,COMPLETED,CANCELED';
-    request(`/bookings?limit=20&status=${statusFilter}`).then((res: any) => {
-      setBookings(res.data || []);
-    }).catch(() => {});
-  }, [tab]);
+    request(`/bookings?limit=20&status=${statusFilter}`)
+      .then((res: any) => setBookings(res.data || []))
+      .catch(() => setBookings([]))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { loadBookings(); }, [tab]);
 
   const handleCancel = async (id: number) => {
     try {
@@ -46,31 +53,43 @@ export default function BookingsPage() {
         ))}
       </View>
 
-      <View className="booking-list">
-        {bookings.map(b => (
-          <View key={b.id} className="booking-card">
-            <View className="booking-header">
-              <Text className="booking-service">{b.service?.name || '-'}</Text>
-              <Text className="booking-status" style={{ color: statusColors[b.status] }}>{bookingStatusLabel(b.status)}</Text>
-            </View>
-            <Text className="booking-time">
-              {b.schedule ? new Date(b.schedule.startAt).toLocaleString('zh-CN') : '-'}
-            </Text>
-            {b.usedMembership && (
-              <Text className="booking-meta">{t('bookings.membership')}：{b.usedMembership.name}</Text>
-            )}
-            {Number(b.paidAmount) > 0 && (
-              <Text className="booking-meta">{t('bookings.paid')}：¥{Number(b.paidAmount).toFixed(2)}</Text>
-            )}
-            {['CREATED', 'CONFIRMED', 'PENDING_PAYMENT'].includes(b.status) && (
-              <View className="booking-actions">
-                <Button className="cancel-btn" onClick={() => handleCancel(b.id)}>{t('common.cancel')}</Button>
+      {loading ? (
+        <LoadingState />
+      ) : bookings.length === 0 ? (
+        <EmptyState
+          title={t('bookings.empty')}
+          description={tab === 'upcoming' ? t('bookings.emptyUpcoming') : t('bookings.emptyHistory')}
+        />
+      ) : (
+        <View className="booking-list">
+          {bookings.map(b => (
+            <View key={b.id} className="booking-card">
+              <View className="booking-header">
+                <Text className="booking-service">{b.service?.name || '-'}</Text>
+                <View className="booking-status-wrap" style={{ backgroundColor: `${statusColors[b.status]}18` }}>
+                  <Text className="booking-status" style={{ color: statusColors[b.status] }}>
+                    {bookingStatusLabel(b.status)}
+                  </Text>
+                </View>
               </View>
-            )}
-          </View>
-        ))}
-        {bookings.length === 0 && <Text className="empty-state">{t('bookings.empty')}</Text>}
-      </View>
+              <Text className="booking-time">
+                {b.schedule ? new Date(b.schedule.startAt).toLocaleString('zh-CN') : '-'}
+              </Text>
+              {b.usedMembership && (
+                <Text className="booking-meta">{t('bookings.membership')}：{b.usedMembership.name}</Text>
+              )}
+              {Number(b.paidAmount) > 0 && (
+                <Text className="booking-meta">{t('bookings.paid')}：¥{Number(b.paidAmount).toFixed(2)}</Text>
+              )}
+              {['CREATED', 'CONFIRMED', 'PENDING_PAYMENT'].includes(b.status) && (
+                <View className="booking-actions">
+                  <Button className="cancel-btn" onClick={() => handleCancel(b.id)}>{t('common.cancel')}</Button>
+                </View>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }

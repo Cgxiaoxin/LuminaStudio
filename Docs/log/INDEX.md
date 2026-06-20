@@ -14,6 +14,10 @@
 
 ## 补充文档
 
+- 跨端协作入口 → [通用.md](../通用.md)
+- 小程序开发 → [小程序.md](../小程序.md)
+- 后端开发 → [后端.md](../后端.md)
+- 后台管理 → [后台管理.md](../后台管理.md)
 - 项目进度总览 → [DEV_LOG.md](../DEV_LOG.md)
 - 产品需求 → [PRD.md](../PRD.md)
 - 架构设计 → [ARCHITECTURE.md](../ARCHITECTURE.md)

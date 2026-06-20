@@ -76,6 +76,7 @@ const messages: TranslationMessages = {
     schedules: 'Schedules',
     bookings: 'Bookings',
     memberships: 'Memberships',
+    membershipTemplates: 'Card Templates',
     finance: 'Finance',
     reports: 'Reports',
     marketing: 'Marketing',
@@ -118,6 +119,7 @@ const messages: TranslationMessages = {
   membershipType: {
     COUNT_BASED: 'Count Based',
     DURATION_BASED: 'Duration Based',
+    STORED_VALUE: 'Stored Value',
     HYBRID: 'Hybrid',
   },
   scheduleStatus: {
@@ -214,6 +216,7 @@ const messages: TranslationMessages = {
       title: 'Memberships',
       add: 'Issue Membership',
       issue: 'Issue',
+      issueFromTemplate: 'Issue from Template',
       cancelCard: 'Cancel Card',
       remaining: 'Remaining',
       total: 'Total',
@@ -223,6 +226,15 @@ const messages: TranslationMessages = {
       totalSessions: 'Total Sessions',
       canceled: 'Canceled',
       period: 'Period',
+    },
+    membershipTemplates: {
+      title: 'Membership Card Types',
+      subtitle: 'Configure session packs, period passes, and stored-value cards',
+      create: 'Create Card Template',
+      price: 'Price',
+      balance: 'Stored Balance',
+      validDays: 'Valid Days',
+      detail: 'Spec',
     },
     finance: {
       title: 'Finance',

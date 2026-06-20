@@ -6,7 +6,13 @@
     'pages/class-detail/index',
     'pages/booking-confirm/index',
     'pages/bookings/index',
+    'pages/venue/index',
+    'pages/buy-membership/index',
     'pages/profile/index',
+    'pages/profile-stats/index',
+    'pages/profile-agreement/index',
+    'pages/profile-orders/index',
+    'pages/profile-edit/index',
   ],
   window: {
     backgroundTextStyle: 'light',
@@ -23,7 +29,7 @@
       { pagePath: 'pages/home/index', text: '首页' },
       { pagePath: 'pages/classes/index', text: '课程' },
       { pagePath: 'pages/bookings/index', text: '预约' },
-      { pagePath: 'pages/profile/index', text: '我的' },
+      { pagePath: 'pages/venue/index', text: '场馆' },
     ],
   },
 });

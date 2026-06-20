@@ -1,0 +1,46 @@
+.edit-page {
+  padding: 32rpx;
+}
+
+.form-card {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 8rpx 24rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.form-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #dce3dc;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.form-label {
+  display: block;
+  font-size: 24rpx;
+  color: #6f776f;
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  font-size: 30rpx;
+  color: #17211c;
+}
+
+.form-readonly {
+  display: block;
+  font-size: 30rpx;
+  color: #17211c;
+}
+
+.save-btn {
+  background: #17211c;
+  color: #ffffff;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}

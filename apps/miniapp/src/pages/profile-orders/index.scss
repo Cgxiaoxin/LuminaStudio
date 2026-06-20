@@ -1,0 +1,58 @@
+.profile-sub-page {
+  padding: 32rpx;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.order-card {
+  background: #ffffff;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.order-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.order-card__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #17211c;
+}
+
+.order-card__status {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.order-card__no {
+  display: block;
+  font-size: 22rpx;
+  color: #6f776f;
+  margin-bottom: 12rpx;
+}
+
+.order-card__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-card__time {
+  font-size: 24rpx;
+  color: #6f776f;
+}
+
+.order-card__amount {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #17211c;
+}

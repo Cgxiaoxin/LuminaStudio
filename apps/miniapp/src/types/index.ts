@@ -41,6 +41,7 @@ export type Membership = {
   type: string;
   totalTimes: number | null;
   remainingTimes: number | null;
+  balanceAmount?: number | string | null;
   status: string;
   startedAt: string | null;
   expiredAt: string | null;

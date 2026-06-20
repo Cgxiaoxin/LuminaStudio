@@ -107,6 +107,11 @@ export class AuthService {
     });
   }
 
+  async bindPhoneByCode(clientId: number, tenantId: number, code: string) {
+    const phone = await this.wechatService.getPhoneNumber(code);
+    return this.bindPhone(clientId, tenantId, phone);
+  }
+
   async getProfile(userId: number, userType: string) {
     if (userType === 'admin') {
       return this.prisma.adminUser.findUnique({
@@ -129,7 +134,102 @@ export class AuthService {
         phone: true,
         avatarUrl: true,
         tenantId: true,
+        createdAt: true,
       },
     });
+  }
+
+  async updateClientProfile(
+    clientId: number,
+    tenantId: number,
+    dto: { nickname?: string },
+  ) {
+    const existing = await this.prisma.client.findFirst({
+      where: { id: clientId, tenantId },
+    });
+    if (!existing) {
+      throw new UnauthorizedException('Client not found');
+    }
+    return this.prisma.client.update({
+      where: { id: clientId },
+      data: {
+        nickname: dto.nickname,
+      },
+      select: {
+        id: true,
+        nickname: true,
+        phone: true,
+        avatarUrl: true,
+        tenantId: true,
+        createdAt: true,
+      },
+    });
+  }
+
+  async getClientStats(clientId: number, tenantId: number) {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const attendedStatuses = ['CHECKED_IN', 'COMPLETED'] as const;
+
+    const totalClasses = await this.prisma.booking.count({
+      where: { tenantId, clientId, status: { in: [...attendedStatuses] } },
+    });
+
+    const monthClasses = await this.prisma.booking.count({
+      where: {
+        tenantId,
+        clientId,
+        status: { in: [...attendedStatuses] },
+        OR: [
+          { checkinAt: { gte: monthStart, lte: monthEnd } },
+          {
+            checkinAt: null,
+            schedule: { startAt: { gte: monthStart, lte: monthEnd } },
+          },
+        ],
+      },
+    });
+
+    const monthAbsences = await this.prisma.booking.count({
+      where: {
+        tenantId,
+        clientId,
+        status: 'CONFIRMED',
+        checkinAt: null,
+        schedule: {
+          endAt: { lt: now, gte: monthStart },
+        },
+      },
+    });
+
+    const monthGroups = await this.prisma.booking.groupBy({
+      by: ['clientId'],
+      where: {
+        tenantId,
+        status: { in: [...attendedStatuses] },
+        OR: [
+          { checkinAt: { gte: monthStart, lte: monthEnd } },
+          {
+            checkinAt: null,
+            schedule: { startAt: { gte: monthStart, lte: monthEnd } },
+          },
+        ],
+      },
+      _count: { id: true },
+      orderBy: { _count: { id: 'desc' } },
+    });
+
+    const rankIndex = monthGroups.findIndex(g => g.clientId === clientId);
+    const monthRank = rankIndex >= 0 ? rankIndex + 1 : null;
+    const totalParticipants = monthGroups.length;
+
+    return {
+      totalClasses,
+      monthClasses,
+      monthAbsences,
+      monthRank,
+      totalParticipants,
+    };
   }
 }

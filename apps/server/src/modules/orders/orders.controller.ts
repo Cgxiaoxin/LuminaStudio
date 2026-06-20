@@ -15,7 +15,6 @@ export class OrdersController {
   }
 
   @Get()
-  @Roles('OWNER', 'ADMIN', 'STAFF')
   findAll(
     @Query('clientId') clientId?: number,
     @Query('status') status?: string,
@@ -23,12 +22,17 @@ export class OrdersController {
     @Query('limit') limit?: number,
     @Req() req?: any,
   ) {
-    return this.ordersService.findAll(req.user.tenantId, { clientId, status, page, limit });
+    const resolvedClientId = req.user.type === 'client' ? req.user.id : clientId;
+    return this.ordersService.findAll(req.user.tenantId, {
+      clientId: resolvedClientId,
+      status,
+      page,
+      limit,
+    });
   }
 
   @Get(':id')
-  @Roles('OWNER', 'ADMIN', 'STAFF')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.ordersService.findOne(id, req.user.tenantId);
+    return this.ordersService.findOne(id, req.user.tenantId, req.user.type === 'client' ? req.user.id : undefined);
   }
 }

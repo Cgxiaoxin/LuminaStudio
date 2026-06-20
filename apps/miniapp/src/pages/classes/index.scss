@@ -1,5 +1,8 @@
+@import '../../styles/tokens.scss';
+
 .classes-page {
-  padding: 32rpx;
+  padding: $page-padding;
+  padding-bottom: 48rpx;
 }
 
 .header {
@@ -7,36 +10,96 @@
 }
 
 .title {
-  font-size: 48rpx;
+  font-size: 44rpx;
   font-weight: 800;
-  color: #17211c;
+  color: $color-ink;
   display: block;
 }
 
 .subtitle {
   font-size: 24rpx;
-  color: #6f776f;
+  color: $color-ink-muted;
   display: block;
-  margin-top: 4rpx;
+  margin-top: 8rpx;
+}
+
+.view-toggle {
+  display: flex;
+  background: $color-surface;
+  border-radius: $radius-pill;
+  padding: 6rpx;
+  margin-bottom: 20rpx;
+  box-shadow: $shadow-panel;
+}
+
+.view-toggle__item {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  border-radius: $radius-pill;
+  font-size: 26rpx;
+  color: $color-ink-muted;
+
+  &.active {
+    background: $color-primary-strong;
+    color: #ffffff;
+    font-weight: 600;
+  }
+}
+
+.schedule-panel {
+  background: $color-surface;
+  border-radius: $radius-panel;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: $shadow-panel;
+}
+
+.schedule-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.schedule-panel__title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $color-ink;
+}
+
+.calendar-btn {
+  padding: 8rpx 20rpx;
+  border-radius: $radius-pill;
+  background: $color-surface-muted;
+
+  Text {
+    font-size: 24rpx;
+    color: $color-primary;
+    font-weight: 600;
+  }
 }
 
 .filter-bar {
   display: flex;
   gap: 12rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 24rpx;
+  flex-wrap: wrap;
 }
 
 .filter-item {
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  background: #ffffff;
-  font-size: 24rpx;
-  color: #6f776f;
-}
+  padding: 12rpx 28rpx;
+  border-radius: $radius-pill;
+  background: $color-surface;
+  font-size: 26rpx;
+  color: $color-ink-muted;
+  box-shadow: $shadow-panel;
+  transition: all 0.15s ease;
 
-.filter-item.active {
-  background: #17211c;
-  color: #ffffff;
+  &.active {
+    background: $color-primary-strong;
+    color: #ffffff;
+  }
 }
 
 .class-list {
@@ -46,42 +109,79 @@
 }
 
 .class-card {
-  background: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+  background: $color-surface;
+  border-radius: $radius-panel;
+  padding: 28rpx;
+  box-shadow: $shadow-panel;
+  display: flex;
+  gap: 20rpx;
+}
+
+.class-card__time-col {
+  flex-shrink: 0;
+  width: 96rpx;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4rpx;
+}
+
+.class-card__time {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+.class-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.class-list--schedule .class-card {
+  align-items: stretch;
 }
 
 .class-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12rpx;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
 }
 
 .class-name {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #17211c;
+  color: $color-ink;
+  flex: 1;
 }
 
 .class-type {
-  background: #eef4ea;
-  padding: 4rpx 16rpx;
+  background: $color-surface-muted;
+  padding: 6rpx 16rpx;
   border-radius: 8rpx;
-  font-size: 20rpx;
-  color: #2e6f57;
+  font-size: 22rpx;
+  color: $color-primary;
+  flex-shrink: 0;
+
+  &--private {
+    background: #f3eef8;
+    color: #6b4c9a;
+  }
 }
 
 .class-details {
   display: flex;
-  gap: 16rpx;
-  margin-bottom: 12rpx;
+  flex-wrap: wrap;
+  gap: 12rpx 20rpx;
+  margin-bottom: 16rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid $color-border;
 }
 
 .detail-item {
   font-size: 24rpx;
-  color: #6f776f;
+  color: $color-ink-muted;
 }
 
 .class-footer {
@@ -91,19 +191,19 @@
 }
 
 .class-price {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 700;
-  color: #17211c;
+  color: $color-ink;
 }
 
 .spots {
   font-size: 24rpx;
-  color: #2e6f57;
+  color: $color-success;
   font-weight: 600;
 }
 
 .spots-low {
   font-size: 24rpx;
-  color: #c77700;
+  color: $color-warning;
   font-weight: 600;
 }

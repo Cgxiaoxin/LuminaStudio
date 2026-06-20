@@ -21,3 +21,9 @@ export class BindPhoneDto {
   @IsNotEmpty()
   phone: string;
 }
+
+export class BindPhoneCodeDto {
+  @IsString()
+  @IsNotEmpty()
+  code: string;
+}

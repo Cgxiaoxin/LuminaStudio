@@ -91,6 +91,7 @@ enum CouponStatus {
 enum MembershipType {
   COUNT_BASED
   DURATION_BASED
+  STORED_VALUE
   HYBRID
 }
 
@@ -125,6 +126,7 @@ model Tenant {
   couponTemplates CouponTemplate[]
   clientCoupons   ClientCoupon[]
   auditLogs       AuditLog[]
+  membershipTemplates MembershipTemplate[]
 }
 
 model Store {
@@ -150,6 +152,7 @@ model Store {
   ledgerEntries LedgerEntry[]
   clientCoupons ClientCoupon[]
   auditLogs    AuditLog[]
+  membershipTemplates MembershipTemplate[]
 
   @@unique([tenantId, code])
   @@index([tenantId, status])
@@ -313,6 +316,28 @@ model Membership {
 
   @@index([tenantId, clientId, status])
   @@index([tenantId, expiredAt])
+}
+
+model MembershipTemplate {
+  id            Int              @id @default(autoincrement())
+  tenantId      Int
+  storeId       Int?
+  name          String
+  type          MembershipType
+  description   String?
+  price         Decimal          @default(0) @db.Decimal(10, 2)
+  totalTimes    Int?
+  validDays     Int?
+  balanceAmount Decimal          @default(0) @db.Decimal(10, 2)
+  status        StoreStatus      @default(ACTIVE)
+  sortOrder     Int              @default(0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  store  Store? @relation(fields: [storeId], references: [id])
+
+  @@index([tenantId, type, status])
 }
 
 model Order {

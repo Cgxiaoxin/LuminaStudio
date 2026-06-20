@@ -1,26 +1,30 @@
-﻿.bookings-page {
-  padding: 32rpx;
+﻿@import '../../styles/tokens.scss';
+
+.bookings-page {
+  padding: $page-padding;
+  padding-bottom: 48rpx;
 }
 
 .tabs {
   display: flex;
   gap: 0;
   margin-bottom: 24rpx;
-  background: #ffffff;
-  border-radius: 12rpx;
+  background: $color-surface;
+  border-radius: $radius-panel;
   overflow: hidden;
+  box-shadow: $shadow-panel;
 }
 
 .tab {
   flex: 1;
   text-align: center;
-  padding: 20rpx;
-  font-size: 26rpx;
-  color: #6f776f;
+  padding: 22rpx;
+  font-size: 28rpx;
+  color: $color-ink-muted;
 }
 
 .tab.active {
-  background: #17211c;
+  background: $color-primary-strong;
   color: #ffffff;
   font-weight: 600;
 }
@@ -32,23 +36,31 @@
 }
 
 .booking-card {
-  background: #ffffff;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+  background: $color-surface;
+  border-radius: $radius-panel;
+  padding: 28rpx;
+  box-shadow: $shadow-panel;
 }
 
 .booking-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8rpx;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
 }
 
 .booking-service {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: #17211c;
+  color: $color-ink;
+  flex: 1;
+}
+
+.booking-status-wrap {
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  flex-shrink: 0;
 }
 
 .booking-status {
@@ -57,36 +69,32 @@
 }
 
 .booking-time {
-  font-size: 24rpx;
-  color: #6f776f;
+  font-size: 26rpx;
+  color: $color-ink-muted;
   display: block;
-  margin-bottom: 4rpx;
+  margin-bottom: 8rpx;
 }
 
 .booking-meta {
-  font-size: 22rpx;
-  color: #6f776f;
+  font-size: 24rpx;
+  color: $color-ink-muted;
   display: block;
+  margin-top: 4rpx;
 }
 
 .booking-actions {
-  margin-top: 12rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid $color-border;
 }
 
 .cancel-btn {
-  background: #ffffff;
-  border: 2rpx solid #c0392b;
-  color: #c0392b;
-  font-size: 24rpx;
-  padding: 8rpx 24rpx;
-  border-radius: 8rpx;
+  background: transparent;
+  border: 2rpx solid $color-danger;
+  color: $color-danger;
+  font-size: 26rpx;
+  padding: 10rpx 32rpx;
+  border-radius: $radius-pill;
   display: inline-block;
-}
-
-.empty-state {
-  display: block;
-  text-align: center;
-  color: #6f776f;
-  font-size: 28rpx;
-  padding: 60rpx 0;
+  line-height: 1.4;
 }

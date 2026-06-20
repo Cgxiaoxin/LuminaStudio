@@ -1,0 +1,45 @@
+@import '../../styles/tokens.scss';
+
+.week-strip {
+  display: flex;
+  gap: 12rpx;
+  overflow-x: auto;
+  padding-bottom: 8rpx;
+}
+
+.week-strip__day {
+  flex: 1;
+  min-width: 72rpx;
+  text-align: center;
+  padding: 16rpx 8rpx;
+  border-radius: 16rpx;
+  background: $color-surface;
+  box-shadow: $shadow-panel;
+}
+
+.week-strip__day--active {
+  background: $color-primary;
+}
+
+.week-strip__day--today:not(.week-strip__day--active) {
+  border: 2rpx solid $color-primary;
+}
+
+.week-strip__weekday {
+  display: block;
+  font-size: 22rpx;
+  color: $color-ink-muted;
+  margin-bottom: 4rpx;
+}
+
+.week-strip__day--active .week-strip__weekday,
+.week-strip__day--active .week-strip__num {
+  color: #ffffff;
+}
+
+.week-strip__num {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $color-ink;
+}

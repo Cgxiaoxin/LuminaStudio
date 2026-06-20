@@ -24,6 +24,7 @@ export class MembershipsService {
       status: 'ACTIVE' as any,
       totalTimes: dto.totalTimes,
       remainingTimes: dto.type === 'DURATION_BASED' ? undefined : dto.totalTimes,
+      balanceAmount: dto.balanceAmount ?? (dto.type === 'STORED_VALUE' ? 0 : 0),
       startedAt: dto.startedAt ? new Date(dto.startedAt) : new Date(),
       expiredAt: dto.expiredAt ? new Date(dto.expiredAt) : undefined,
       store: dto.storeId ? { connect: { id: dto.storeId } } : undefined,
@@ -104,6 +105,18 @@ export class MembershipsService {
         throw new BadRequestException('Membership has expired');
       }
       return membership;
+    }
+
+    if (membership.type === 'STORED_VALUE') {
+      const balance = Number(membership.balanceAmount ?? 0);
+      const cost = dto.amount ?? dto.count;
+      if (balance < cost) {
+        throw new BadRequestException(`Insufficient balance: ¥${balance}, ¥${cost} required`);
+      }
+      return this.prisma.membership.update({
+        where: { id },
+        data: { balanceAmount: { decrement: cost } },
+      });
     }
 
     const remaining = membership.remainingTimes ?? 0;

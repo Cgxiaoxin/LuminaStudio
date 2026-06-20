@@ -8,6 +8,7 @@ import ServicesPage from "../pages/ServicesPage";
 import SchedulesPage from "../pages/SchedulesPage";
 import BookingsPage from "../pages/BookingsPage";
 import MembershipsPage from "../pages/MembershipsPage";
+import MembershipTemplatesPage from "../pages/MembershipTemplatesPage";
 import FinancePage from "../pages/FinancePage";
 import ReportsPage from "../pages/ReportsPage";
 import MarketingPage from "../pages/MarketingPage";
@@ -22,6 +23,7 @@ const pageDefs = [
   { path: "schedules", titleKey: "nav.schedules", icon: CalendarDays },
   { path: "bookings", titleKey: "nav.bookings", icon: Ticket },
   { path: "memberships", titleKey: "nav.memberships", icon: Users },
+  { path: "membership-templates", titleKey: "nav.membershipTemplates", icon: CreditCard },
   { path: "finance", titleKey: "nav.finance", icon: CreditCard },
   { path: "reports", titleKey: "nav.reports", icon: LayoutDashboard },
   { path: "marketing", titleKey: "nav.marketing", icon: Ticket },
@@ -46,6 +48,7 @@ export function AdminRoutes() {
         <Route path="schedules" element={<SchedulesPage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="memberships" element={<MembershipsPage />} />
+        <Route path="membership-templates" element={<MembershipTemplatesPage />} />
         <Route path="finance" element={<FinancePage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="marketing" element={<MarketingPage />} />

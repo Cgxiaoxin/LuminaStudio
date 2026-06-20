@@ -45,6 +45,13 @@ export class OrdersService {
         include: {
           client: { select: { id: true, nickname: true, phone: true } },
           payments: { select: { id: true, status: true, amount: true, channel: true } },
+          booking: {
+            select: {
+              id: true,
+              bookingNo: true,
+              service: { select: { name: true } },
+            },
+          },
         },
       }),
       this.prisma.order.count({ where }),
@@ -53,9 +60,13 @@ export class OrdersService {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findOne(id: number, tenantId: number) {
+  async findOne(id: number, tenantId: number, clientId?: number) {
     const order = await this.prisma.order.findFirst({
-      where: { id, tenantId },
+      where: {
+        id,
+        tenantId,
+        ...(clientId ? { clientId } : {}),
+      },
       include: {
         client: { select: { id: true, nickname: true, phone: true } },
         payments: true,
