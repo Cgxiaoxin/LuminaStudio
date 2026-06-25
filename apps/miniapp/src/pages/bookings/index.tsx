@@ -2,6 +2,7 @@
 import { Text, View, Button } from '@tarojs/components';
 import { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { payOrder } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState } from '../../components/LoadingState';
 import { bookingStatusLabel, t } from '../../i18n/messages';
@@ -21,6 +22,7 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [tab, setTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
+  const [payingId, setPayingId] = useState<number | null>(null);
 
   const loadBookings = () => {
     setLoading(true);
@@ -37,9 +39,25 @@ export default function BookingsPage() {
     try {
       await request(`/bookings/${id}/cancel`, { method: 'PATCH', data: {} });
       showToast({ title: t('bookings.canceled'), icon: 'success' });
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'CANCELED' as any } : b));
+      loadBookings();
     } catch {
       showToast({ title: t('common.failed'), icon: 'error' });
+    }
+  };
+
+  const handlePay = async (booking: Booking) => {
+    const orderId = booking.orders?.[0]?.id;
+    if (!orderId || payingId) return;
+    setPayingId(booking.id);
+    try {
+      await payOrder(orderId);
+      showToast({ title: t('bookings.paySuccess'), icon: 'success' });
+      loadBookings();
+    } catch (err: any) {
+      const msg = err?.errMsg?.includes('cancel') ? t('bookings.payCanceled') : (err.message || t('common.failed'));
+      showToast({ title: msg, icon: 'none' });
+    } finally {
+      setPayingId(null);
     }
   };
 
@@ -83,6 +101,15 @@ export default function BookingsPage() {
               )}
               {['CREATED', 'CONFIRMED', 'PENDING_PAYMENT'].includes(b.status) && (
                 <View className="booking-actions">
+                  {b.status === 'PENDING_PAYMENT' && b.orders?.[0]?.id ? (
+                    <Button
+                      className="pay-btn"
+                      loading={payingId === b.id}
+                      onClick={() => handlePay(b)}
+                    >
+                      {t('bookings.payNow')}
+                    </Button>
+                  ) : null}
                   <Button className="cancel-btn" onClick={() => handleCancel(b.id)}>{t('common.cancel')}</Button>
                 </View>
               )}

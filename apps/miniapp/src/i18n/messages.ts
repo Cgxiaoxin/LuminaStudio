@@ -74,9 +74,11 @@ export const messages = {
   },
   buyMembership: {
     title: '购卡续费',
-    subtitle: '选择适合你的会员卡，联系门店前台完成办理与续费',
+    subtitle: '选择适合你的会员卡，在线支付后自动开通',
     empty: '暂无可购会员卡',
     buy: '立即办理',
+    paying: '支付中…',
+    success: '购卡成功',
     confirmTitle: '办理会员卡',
     confirmContent: '即将联系门店办理「{name}」，是否继续？',
     callStore: '联系门店',
@@ -134,6 +136,9 @@ export const messages = {
     emptyUpcoming: '去课程页挑选一节适合你的课吧',
     emptyHistory: '完成上课后记录会出现在这里',
     canceled: '已取消',
+    payNow: '去支付',
+    paySuccess: '支付成功',
+    payCanceled: '已取消支付',
   },
   profile: {
     title: '我的',

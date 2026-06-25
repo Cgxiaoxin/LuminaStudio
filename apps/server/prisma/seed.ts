@@ -1,5 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { generateOrderNo } from '../src/modules/orders/order-number.util';
+
+async function syncScheduleBookedCounts(tenantId: number) {
+  const counts = await prisma.booking.groupBy({
+    by: ['scheduleId'],
+    where: {
+      tenantId,
+      status: { notIn: ['CANCELED'] },
+    },
+    _count: { _all: true },
+  });
+
+  const schedules = await prisma.schedule.findMany({ where: { tenantId } });
+  for (const schedule of schedules) {
+    const bookedCount = counts.find((c) => c.scheduleId === schedule.id)?._count._all ?? 0;
+    const status = bookedCount >= schedule.capacity ? 'FULL' : schedule.status === 'CANCELED' ? 'CANCELED' : 'OPEN';
+    await prisma.schedule.update({
+      where: { id: schedule.id },
+      data: { bookedCount, status },
+    });
+  }
+}
 
 const prisma = new PrismaClient();
 
@@ -316,6 +338,38 @@ async function main() {
       bookingNo: `DEMO-MISS-${Date.now()}`,
     },
   });
+
+  // Demo pending-payment booking for pay-retry testing
+  const paidSchedule = createdSchedules[1];
+  const pendingBooking = await prisma.booking.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      serviceId: groupClassPaid.id,
+      scheduleId: paidSchedule.id,
+      status: 'PENDING_PAYMENT',
+      source: 'WECHAT_MINIAPP',
+      bookingNo: `DEMO-PAY-${Date.now()}`,
+    },
+  });
+  await prisma.order.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      bookingId: pendingBooking.id,
+      serviceId: groupClassPaid.id,
+      orderNo: generateOrderNo(),
+      status: 'PENDING',
+      orderType: 'BOOKING',
+      originalAmount: groupClassPaid.price,
+      discountAmount: 0,
+      paidAmount: 0,
+    },
+  });
+
+  await syncScheduleBookedCounts(tenant.id);
 
   console.log('Seed complete:', {
     tenantId: tenant.id,

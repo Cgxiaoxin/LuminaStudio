@@ -1,7 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateMembershipTemplateDto } from './dto/create-membership-template.dto';
 import { Prisma } from '@prisma/client';
+import { generateOrderNo } from '../orders/order-number.util';
+
+type DbClient = Prisma.TransactionClient | PrismaService;
 
 @Injectable()
 export class MembershipTemplatesService {
@@ -80,9 +83,14 @@ export class MembershipTemplatesService {
     });
   }
 
-  async issueFromTemplate(templateId: number, clientId: number, tenantId: number) {
+  async issueFromTemplate(
+    templateId: number,
+    clientId: number,
+    tenantId: number,
+    db: DbClient = this.prisma,
+  ) {
     const template = await this.findOne(templateId, tenantId);
-    const client = await this.prisma.client.findFirst({ where: { id: clientId, tenantId } });
+    const client = await db.client.findFirst({ where: { id: clientId, tenantId } });
     if (!client) {
       throw new NotFoundException(`Client ${clientId} not found`);
     }
@@ -92,7 +100,7 @@ export class MembershipTemplatesService {
       ? new Date(startedAt.getTime() + template.validDays * 24 * 60 * 60 * 1000)
       : undefined;
 
-    return this.prisma.membership.create({
+    return db.membership.create({
       data: {
         tenantId,
         storeId: template.storeId,
@@ -107,5 +115,37 @@ export class MembershipTemplatesService {
         status: 'ACTIVE',
       },
     });
+  }
+
+  async purchase(templateId: number, clientId: number, tenantId: number) {
+    const template = await this.findOne(templateId, tenantId);
+    if (template.status !== 'ACTIVE') {
+      throw new BadRequestException('Membership template is not active');
+    }
+    if (Number(template.price) <= 0) {
+      throw new BadRequestException('Template price must be greater than zero');
+    }
+
+    const storeId = template.storeId;
+    if (!storeId) {
+      throw new BadRequestException('Template store is required for purchase');
+    }
+
+    const order = await this.prisma.order.create({
+      data: {
+        tenantId,
+        storeId,
+        clientId,
+        membershipTemplateId: templateId,
+        orderNo: generateOrderNo(),
+        status: 'PENDING',
+        orderType: 'MEMBERSHIP',
+        originalAmount: template.price,
+        discountAmount: 0,
+        paidAmount: 0,
+      },
+    });
+
+    return { order };
   }
 }

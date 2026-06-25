@@ -95,6 +95,24 @@ describe('BookingsService', () => {
     expect(result.booking.status).toBe('PENDING_PAYMENT');
     expect(result.order).toEqual({ id: 20, status: 'PENDING' });
   });
+
+  it('filters bookings by comma-separated statuses', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const count = jest.fn().mockResolvedValue(0);
+    (service as any).prisma = {
+      booking: { findMany, count },
+    };
+
+    await service.findAll(1, { status: 'CONFIRMED,PENDING_PAYMENT' });
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          status: { in: ['CONFIRMED', 'PENDING_PAYMENT'] },
+        }),
+      }),
+    );
+  });
 });
 
 describe('BookingsService concurrency', () => {

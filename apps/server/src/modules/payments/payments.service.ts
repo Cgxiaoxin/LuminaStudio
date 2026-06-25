@@ -1,16 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   PAYMENT_GATEWAY,
   PaymentGateway,
 } from './gateway/payment-gateway.interface';
+import { MembershipTemplatesService } from '../memberships/membership-templates.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     @Inject(PAYMENT_GATEWAY) private gateway: PaymentGateway,
+    @Inject(forwardRef(() => MembershipTemplatesService))
+    private templatesService: MembershipTemplatesService,
   ) {}
 
   async createPayment(orderId: number, channel: string, tenantId: number, user?: { id: number; type: string }) {
@@ -98,6 +100,15 @@ export class PaymentsService {
             paidAmount: payment.amount,
           },
         });
+      }
+
+      if (payment.order.orderType === 'MEMBERSHIP' && payment.order.membershipTemplateId) {
+        await this.templatesService.issueFromTemplate(
+          payment.order.membershipTemplateId,
+          payment.order.clientId,
+          tenantId,
+          tx,
+        );
       }
 
       await tx.ledgerEntry.create({

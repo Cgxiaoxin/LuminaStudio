@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
 import Taro, { useRouter, showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
+import { payOrder } from '../../services/payment';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
@@ -30,22 +31,14 @@ export default function BookingConfirmPage() {
       const result: any = await request('/bookings', { method: 'POST', data: payload });
 
       if (result.order) {
-        const payRes: any = await request('/payments/unified-order', {
-          method: 'POST',
-          data: { orderId: result.order.id, channel: 'wechat' },
-        });
-        if (payRes.unified?.devMode) {
-          await request(`/payments/notify/${payRes.payment.id}`, {
-            method: 'POST',
-            data: { transactionId: `dev_tx_${Date.now()}`, success: true },
-          });
-        }
+        await payOrder(result.order.id);
       }
 
       showToast({ title: t('bookingConfirm.success'), icon: 'success' });
       setTimeout(() => Taro.switchTab({ url: '/pages/bookings/index' }), 1500);
     } catch (err: any) {
-      showToast({ title: err.message || t('common.failed'), icon: 'none' });
+      const msg = err?.errMsg?.includes('cancel') ? t('bookings.payCanceled') : (err.message || t('common.failed'));
+      showToast({ title: msg, icon: 'none' });
     } finally {
       setSubmitting(false);
     }

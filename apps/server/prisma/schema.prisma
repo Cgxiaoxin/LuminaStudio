@@ -336,6 +336,7 @@ model MembershipTemplate {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
   store  Store? @relation(fields: [storeId], references: [id])
+  orders Order[]
 
   @@index([tenantId, type, status])
 }
@@ -348,6 +349,7 @@ model Order {
   bookingId      Int?
   serviceId      Int?
   membershipId   Int?
+  membershipTemplateId Int?
   orderNo        String      @unique
   status         OrderStatus @default(PENDING)
   orderType      String
@@ -366,6 +368,7 @@ model Order {
   booking       Booking?     @relation(fields: [bookingId], references: [id])
   service       Service?     @relation(fields: [serviceId], references: [id])
   membership    Membership?  @relation(fields: [membershipId], references: [id])
+  membershipTemplate MembershipTemplate? @relation(fields: [membershipTemplateId], references: [id])
   payments      Payment[]
   ledgerEntries LedgerEntry[]
 

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Text, View } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import { Text, View, Button } from '@tarojs/components';
+import Taro, { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
-import { LoadingState } from '../../components/LoadingState';
+import { payOrder } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
+import { LoadingState } from '../../components/LoadingState';
 import { membershipTypeLabel, t } from '../../i18n/messages';
 import './index.scss';
 
@@ -21,6 +22,7 @@ type MembershipTemplate = {
 export default function BuyMembershipPage() {
   const [templates, setTemplates] = useState<MembershipTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [buyingId, setBuyingId] = useState<number | null>(null);
 
   useEffect(() => {
     request('/membership-templates?status=ACTIVE')
@@ -29,27 +31,23 @@ export default function BuyMembershipPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleBuy = (tpl: MembershipTemplate) => {
-    Taro.showModal({
-      title: t('buyMembership.confirmTitle'),
-      content: t('buyMembership.confirmContent', { name: tpl.name }),
-      confirmText: t('buyMembership.callStore'),
-      cancelText: t('common.cancel'),
-      success: (res) => {
-        if (res.confirm) {
-          request('/stores?limit=1').then((storeRes: any) => {
-            const store = (storeRes.data?.data || storeRes.data || [])[0];
-            if (store?.phone) {
-              Taro.makePhoneCall({ phoneNumber: store.phone });
-            } else {
-              Taro.showToast({ title: t('venue.noPhone'), icon: 'none' });
-            }
-          }).catch(() => {
-            Taro.showToast({ title: t('venue.noPhone'), icon: 'none' });
-          });
-        }
-      },
-    });
+  const handleBuy = async (tpl: MembershipTemplate) => {
+    if (buyingId) return;
+    setBuyingId(tpl.id);
+    try {
+      const result: any = await request(`/membership-templates/${tpl.id}/purchase`, {
+        method: 'POST',
+        data: {},
+      });
+      await payOrder(result.order.id);
+      showToast({ title: t('buyMembership.success'), icon: 'success' });
+      setTimeout(() => Taro.navigateTo({ url: '/pages/profile/index' }), 1200);
+    } catch (err: any) {
+      const msg = err?.errMsg?.includes('cancel') ? t('bookings.payCanceled') : (err.message || t('common.failed'));
+      showToast({ title: msg, icon: 'none' });
+    } finally {
+      setBuyingId(null);
+    }
   };
 
   const detailText = (tpl: MembershipTemplate) => {
@@ -83,8 +81,11 @@ export default function BuyMembershipPage() {
               <Text className="template-card__detail">{detailText(tpl)}</Text>
               <View className="template-card__foot">
                 <Text className="template-card__price">¥{Number(tpl.price).toFixed(0)}</Text>
-                <View className="template-card__btn" onClick={() => handleBuy(tpl)}>
-                  <Text>{t('buyMembership.buy')}</Text>
+                <View
+                  className={`template-card__btn ${buyingId === tpl.id ? 'disabled' : ''}`}
+                  onClick={() => handleBuy(tpl)}
+                >
+                  <Text>{buyingId === tpl.id ? t('buyMembership.paying') : t('buyMembership.buy')}</Text>
                 </View>
               </View>
             </View>

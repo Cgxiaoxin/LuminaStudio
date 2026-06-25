@@ -32,7 +32,7 @@ export type Booking = {
   client?: { id: number; nickname?: string; phone?: string; avatarUrl?: string };
   service?: StudioClass;
   schedule?: { startAt: string; endAt: string };
-  usedMembership?: { id: number; name: string };
+  orders?: { id: number; status: string; orderNo?: string }[];
 };
 
 export type Membership = {

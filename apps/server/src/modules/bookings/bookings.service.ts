@@ -147,7 +147,14 @@ export class BookingsService {
 
     if (clientId) where.clientId = clientId;
     if (scheduleId) where.scheduleId = scheduleId;
-    if (status) where.status = status as any;
+    if (status) {
+      const statuses = status.split(',').map((s) => s.trim()).filter(Boolean);
+      if (statuses.length === 1) {
+        where.status = statuses[0] as any;
+      } else if (statuses.length > 1) {
+        where.status = { in: statuses as any[] };
+      }
+    }
     if (storeId) where.storeId = storeId;
     if (dateFrom || dateTo) {
       where.createdAt = {};
@@ -166,6 +173,12 @@ export class BookingsService {
           service: { select: { id: true, name: true, type: true } },
           schedule: { select: { startAt: true, endAt: true } },
           usedMembership: { select: { id: true, name: true } },
+          orders: {
+            where: { status: 'PENDING' },
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+            select: { id: true, status: true, orderNo: true },
+          },
         },
       }),
       this.prisma.booking.count({ where }),
