@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Req, ParseIntPipe, Patch } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { RequestWithUser } from '../../common/types/request';
@@ -34,5 +34,11 @@ export class OrdersController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
     return this.ordersService.findOne(id, req.user.tenantId, req.user.type === 'client' ? req.user.id : undefined);
+  }
+
+  @Post(':id/refund')
+  @Roles('OWNER', 'ADMIN')
+  refund(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
+    return this.ordersService.refund(id, req.user.tenantId);
   }
 }

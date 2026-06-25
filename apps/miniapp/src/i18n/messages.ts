@@ -6,6 +6,7 @@ export const messages = {
     free: '免费',
     failed: '操作失败',
     cancel: '取消',
+    retry: '重试',
     coach: '教练',
     price: '价格',
     duration: '时长',
@@ -17,6 +18,7 @@ export const messages = {
   errors: {
     loginFailed: '登录失败',
     wechatLoginFailed: '微信登录失败',
+    loadFailed: '加载失败，请重试',
     domainNotAllowed: '请在开发者工具「详情→本地设置」勾选不校验合法域名',
     networkFailed: '网络请求失败，请确认后端已启动',
     unauthorized: '登录已过期，请重新登录',
@@ -70,6 +72,7 @@ export const messages = {
     linkProfile: '个人中心',
     linkBuyCard: '购卡续费',
     linkStats: '约课统计',
+    linkCoaches: '教练团队',
     linkAgreement: '会员协议',
   },
   buyMembership: {
@@ -119,6 +122,7 @@ export const messages = {
     summary: '预约信息',
     useMembership: '使用会员卡',
     unlimited: '不限次数',
+    balanceLeft: '储值卡 · 余额 ¥{amount}',
     sessionsLeft: '剩余 {remaining}/{total} 次',
     freeWithMembership: '免费（使用会员卡）',
     payOnBooking: '预约时支付',
@@ -160,6 +164,9 @@ export const messages = {
     rankValue: '第 {n} 名',
     rankEmpty: '暂无',
     menuStats: '约课统计',
+    menuHistory: '训练历史',
+    menuCoupons: '我的优惠券',
+    menuCoaches: '教练团队',
     menuAgreement: '会员协议',
     menuOrders: '我的订单',
     menuProfile: '我的资料',
@@ -174,6 +181,7 @@ export const messages = {
   profileAgreement: {
     title: '会员协议',
     updatedAt: '更新日期：2026-06-20',
+    updatedAtDynamic: '更新日期：{date}',
     content: '欢迎使用 LuminaStudio 会员服务。本协议说明会员卡使用规则、有效期、退卡政策及预约须知。预约成功后请按时到场；如需取消请提前联系门店。计次卡按次扣减，期限卡在有效期内不限次数（以门店规则为准），储值卡按课程价格扣费。如有疑问请联系门店前台。',
   },
   profileOrders: {
@@ -190,6 +198,30 @@ export const messages = {
     memberSince: '注册时间',
     save: '保存资料',
     saved: '资料已保存',
+  },
+  coaches: {
+    title: '教练团队',
+    empty: '暂无教练',
+    noBio: '暂无简介',
+    intro: '教练简介',
+  },
+  coupons: {
+    title: '我的优惠券',
+    empty: '暂无优惠券',
+    defaultName: '优惠券',
+    percentOff: '{n}% 折扣',
+    amountOff: '立减 ¥{n}',
+    minSpend: '满 ¥{n} 可用',
+    status: {
+      ACTIVE: '可使用',
+      USED: '已使用',
+      EXPIRED: '已过期',
+      INACTIVE: '已失效',
+    },
+  },
+  profileHistory: {
+    title: '训练历史',
+    empty: '暂无训练记录',
   },
   orderStatus: {
     PENDING: '待支付',

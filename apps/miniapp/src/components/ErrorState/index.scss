@@ -1,0 +1,35 @@
+@import '../../styles/tokens.scss';
+
+.error-state {
+  padding: 48rpx 32rpx;
+  text-align: center;
+}
+
+.error-state__title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $color-danger;
+  margin-bottom: 12rpx;
+}
+
+.error-state__desc {
+  display: block;
+  font-size: 24rpx;
+  color: $color-ink-muted;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
+}
+
+.error-state__action {
+  display: inline-block;
+  padding: 14rpx 36rpx;
+  border-radius: $radius-pill;
+  background: $color-primary-strong;
+
+  Text {
+    font-size: 26rpx;
+    color: #ffffff;
+    font-weight: 600;
+  }
+}

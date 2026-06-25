@@ -62,7 +62,6 @@ export class BookingsService {
       let usedMembershipId: number | undefined;
 
       if (dto.membershipId) {
-        // Use membership
         const membership = await tx.membership.findFirst({
           where: { id: dto.membershipId, tenantId, clientId: dto.clientId },
         });
@@ -72,7 +71,18 @@ export class BookingsService {
         if (membership.status !== 'ACTIVE') {
           throw new BadRequestException('Membership is not active');
         }
-        if (membership.type !== 'DURATION_BASED') {
+
+        const servicePrice = Number(schedule.service.price);
+        if (membership.type === 'STORED_VALUE') {
+          const balance = Number(membership.balanceAmount ?? 0);
+          if (balance < servicePrice) {
+            throw new BadRequestException('Insufficient stored value balance');
+          }
+          await tx.membership.update({
+            where: { id: dto.membershipId },
+            data: { balanceAmount: { decrement: servicePrice } },
+          });
+        } else if (membership.type !== 'DURATION_BASED') {
           const remaining = membership.remainingTimes ?? 0;
           if (remaining < 1) {
             throw new BadRequestException('No remaining sessions on membership');
@@ -204,16 +214,53 @@ export class BookingsService {
   }
 
   async checkIn(id: number, tenantId: number) {
-    const booking = await this.findOne(id, tenantId);
+    const booking = await this.prisma.booking.findFirst({
+      where: { id, tenantId },
+      include: {
+        service: { select: { name: true, price: true } },
+        usedMembership: { select: { id: true, name: true, type: true } },
+      },
+    });
+    if (!booking) {
+      throw new NotFoundException(`Booking ${id} not found`);
+    }
     if (booking.status !== 'CONFIRMED') {
       throw new BadRequestException(`Cannot check-in booking with status ${booking.status}`);
     }
-    return this.prisma.booking.update({
-      where: { id },
-      data: {
-        status: 'CHECKED_IN',
-        checkinAt: new Date(),
-      },
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.booking.update({
+        where: { id },
+        data: {
+          status: 'CHECKED_IN',
+          checkinAt: new Date(),
+        },
+      });
+
+      const consumeAmount = booking.usedMembershipId
+        ? Number(booking.service.price)
+        : Number(booking.paidAmount);
+
+      if (consumeAmount > 0 || booking.usedMembershipId) {
+        await tx.ledgerEntry.create({
+          data: {
+            tenantId,
+            storeId: booking.storeId,
+            clientId: booking.clientId,
+            bookingId: booking.id,
+            membershipId: booking.usedMembershipId ?? undefined,
+            type: 'CONSUME',
+            amount: consumeAmount,
+            occurredAt: new Date(),
+            source: 'CHECKIN',
+            remark: booking.usedMembership
+              ? `Check-in with membership: ${booking.usedMembership.name}`
+              : `Check-in: ${booking.service.name}`,
+          },
+        });
+      }
+
+      return updated;
     });
   }
 
@@ -258,6 +305,11 @@ export class BookingsService {
           data: { status: 'OPEN' },
         });
       }
+
+      await tx.order.updateMany({
+        where: { bookingId: id, tenantId, status: 'PENDING' },
+        data: { status: 'CANCELED' },
+      });
 
       return tx.booking.update({
         where: { id },

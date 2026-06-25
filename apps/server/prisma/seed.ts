@@ -36,12 +36,16 @@ function atDayHour(dayOffset: number, hour: number, minute = 0) {
 async function main() {
   const tenant = await prisma.tenant.upsert({
     where: { code: 'lumina-demo' },
-    update: { brandName: 'LuminaStudio' },
+    update: {
+      brandName: 'LuminaStudio',
+      agreementText: '欢迎使用 LuminaStudio 会员服务。本协议说明会员卡使用规则、有效期、退卡政策及预约须知。预约成功后请按时到场；如需取消请提前联系门店。计次卡按次扣减，期限卡在有效期内不限次数（以门店规则为准），储值卡按课程价格扣费。如有疑问请联系门店前台。',
+    },
     create: {
       name: 'Lumina Demo Studio',
       code: 'lumina-demo',
       brandName: 'LuminaStudio',
       contactPhone: '13800138000',
+      agreementText: '欢迎使用 LuminaStudio 会员服务。本协议说明会员卡使用规则、有效期、退卡政策及预约须知。预约成功后请按时到场；如需取消请提前联系门店。计次卡按次扣减，期限卡在有效期内不限次数（以门店规则为准），储值卡按课程价格扣费。如有疑问请联系门店前台。',
     },
   });
 
@@ -75,7 +79,7 @@ async function main() {
     },
   });
 
-  await prisma.store.upsert({
+  const br01Store = await prisma.store.upsert({
     where: { tenantId_code: { tenantId: tenant.id, code: 'BR01' } },
     update: {
       name: 'Lumina 分店',
@@ -113,6 +117,8 @@ async function main() {
   await prisma.schedule.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.membership.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.membershipTemplate.deleteMany({ where: { tenantId: tenant.id } });
+  await prisma.clientCoupon.deleteMany({ where: { tenantId: tenant.id } });
+  await prisma.couponTemplate.deleteMany({ where: { tenantId: tenant.id } });
 
   await prisma.service.deleteMany({
     where: { tenantId: tenant.id, name: { in: ['Morning Pilates', 'Evening Flow', 'Private Reformer'] } },
@@ -179,6 +185,31 @@ async function main() {
         data: {
           tenantId: tenant.id,
           storeId: mainStore.id,
+          serviceId: slot.service.id,
+          coachId: coach.id,
+          startAt,
+          endAt,
+          capacity: slot.capacity,
+          bookedCount: 0,
+        },
+      }),
+    );
+  }
+
+  const br01Slots = [
+    { day: 0, hour: 11, service: groupClass, capacity: 6 },
+    { day: 1, hour: 14, service: groupClassPaid, capacity: 6 },
+    { day: 2, hour: 10, service: groupClass, capacity: 8 },
+    { day: 4, hour: 15, service: privateClass, capacity: 1 },
+  ];
+  for (const slot of br01Slots) {
+    const startAt = atDayHour(slot.day, slot.hour);
+    const endAt = new Date(startAt.getTime() + slot.service.durationMinutes * 60 * 1000);
+    createdSchedules.push(
+      await prisma.schedule.create({
+        data: {
+          tenantId: tenant.id,
+          storeId: br01Store.id,
           serviceId: slot.service.id,
           coachId: coach.id,
           startAt,
@@ -261,6 +292,44 @@ async function main() {
       type: 'DURATION_BASED',
       startedAt: new Date(),
       expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.membership.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      name: '储值卡 2000',
+      type: 'STORED_VALUE',
+      balanceAmount: 1680,
+      startedAt: new Date(),
+      expiredAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const couponTemplate = await prisma.couponTemplate.create({
+    data: {
+      tenantId: tenant.id,
+      name: '新客立减 20 元',
+      couponType: 'FIXED',
+      discountValue: 20,
+      minimumSpend: 99,
+      quota: 100,
+      perUserLimit: 1,
+      status: 'ACTIVE',
+      validFrom: new Date(),
+      validTo: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.clientCoupon.create({
+    data: {
+      tenantId: tenant.id,
+      clientId: client.id,
+      couponTemplateId: couponTemplate.id,
+      status: 'ACTIVE',
+      expiredAt: couponTemplate.validTo,
     },
   });
 
@@ -369,13 +438,72 @@ async function main() {
     },
   });
 
+  const paidScheduleSlot = createdSchedules[2];
+  const paidBooking = await prisma.booking.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      serviceId: groupClassPaid.id,
+      scheduleId: paidScheduleSlot.id,
+      status: 'CONFIRMED',
+      source: 'WECHAT_MINIAPP',
+      bookingNo: `DEMO-PAID-${Date.now()}`,
+      paidAmount: groupClassPaid.price,
+    },
+  });
+  const paidOrder = await prisma.order.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      bookingId: paidBooking.id,
+      serviceId: groupClassPaid.id,
+      orderNo: generateOrderNo(),
+      status: 'PAID',
+      orderType: 'BOOKING',
+      originalAmount: groupClassPaid.price,
+      discountAmount: 0,
+      paidAmount: groupClassPaid.price,
+      paidAt: new Date(),
+    },
+  });
+  const paidPayment = await prisma.payment.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      orderId: paidOrder.id,
+      channel: 'WECHAT',
+      status: 'PAID',
+      amount: groupClassPaid.price,
+      transactionId: `demo_tx_${Date.now()}`,
+    },
+  });
+  await prisma.ledgerEntry.create({
+    data: {
+      tenantId: tenant.id,
+      storeId: mainStore.id,
+      clientId: client.id,
+      orderId: paidOrder.id,
+      paymentId: paidPayment.id,
+      bookingId: paidBooking.id,
+      type: 'RECHARGE',
+      amount: groupClassPaid.price,
+      occurredAt: new Date(),
+      source: 'WECHAT',
+      remark: 'Demo paid booking',
+    },
+  });
+
   await syncScheduleBookedCounts(tenant.id);
 
   console.log('Seed complete:', {
     tenantId: tenant.id,
     storeId: mainStore.id,
+    br01StoreId: br01Store.id,
     schedules: createdSchedules.length,
     clientId: client.id,
+    couponTemplateId: couponTemplate.id,
     admin: 'admin / admin123',
     tip: '小程序 dev 登录后若需 demo 会员卡，请使用 seed 中的 dev_openid_demo 对应账号',
   });

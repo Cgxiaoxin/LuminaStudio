@@ -1,0 +1,37 @@
+.history-page {
+  padding: 32rpx;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.history-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.history-card__name {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #17211c;
+  margin-bottom: 8rpx;
+}
+
+.history-card__time {
+  display: block;
+  font-size: 24rpx;
+  color: #6f776f;
+  margin-bottom: 6rpx;
+}
+
+.history-card__status {
+  font-size: 22rpx;
+  color: #2e6f57;
+  font-weight: 600;
+}

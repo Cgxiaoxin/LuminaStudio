@@ -79,7 +79,9 @@ export default function BookingConfirmPage() {
               <Text className="membership-info">
                 {m.type === 'DURATION_BASED'
                   ? t('bookingConfirm.unlimited')
-                  : t('bookingConfirm.sessionsLeft', { remaining: m.remainingTimes ?? 0, total: m.totalTimes ?? 0 })}
+                  : m.type === 'STORED_VALUE'
+                    ? t('bookingConfirm.balanceLeft', { amount: Number(m.balanceAmount || 0).toFixed(0) })
+                    : t('bookingConfirm.sessionsLeft', { remaining: m.remainingTimes ?? 0, total: m.totalTimes ?? 0 })}
               </Text>
             </View>
           ))}

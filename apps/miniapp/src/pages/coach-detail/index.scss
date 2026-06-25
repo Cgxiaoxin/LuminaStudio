@@ -1,0 +1,64 @@
+.coach-detail {
+  padding: 32rpx;
+}
+
+.coach-detail__hero {
+  text-align: center;
+  margin-bottom: 24rpx;
+}
+
+.coach-detail__avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #2e6f57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16rpx;
+
+  Text {
+    color: #ffffff;
+    font-size: 48rpx;
+    font-weight: 700;
+  }
+}
+
+.coach-detail__name {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #17211c;
+}
+
+.coach-detail__card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.coach-detail__label {
+  display: block;
+  font-size: 24rpx;
+  color: #6f776f;
+  margin-bottom: 12rpx;
+}
+
+.coach-detail__bio {
+  display: block;
+  font-size: 28rpx;
+  color: #17211c;
+  line-height: 1.6;
+}
+
+.coach-detail__phone {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #e8ebe6;
+
+  Text {
+    font-size: 28rpx;
+    color: #2e6f57;
+    font-weight: 600;
+  }
+}

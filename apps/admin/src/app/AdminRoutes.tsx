@@ -1,4 +1,4 @@
-﻿import { CalendarDays, CreditCard, LayoutDashboard, Settings, Store, Ticket, Users } from "lucide-react";
+﻿import { CalendarDays, CreditCard, LayoutDashboard, Settings, Store, Ticket, UserCircle, Users } from "lucide-react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AdminShell } from "./AdminShell";
 import DashboardPage from "../pages/DashboardPage";
@@ -13,11 +13,13 @@ import FinancePage from "../pages/FinancePage";
 import ReportsPage from "../pages/ReportsPage";
 import MarketingPage from "../pages/MarketingPage";
 import SettingsPage from "../pages/SettingsPage";
+import CustomersPage from "../pages/CustomersPage";
 import { useI18n } from "../i18n";
 
 const pageDefs = [
   { path: "dashboard", titleKey: "nav.dashboard", icon: LayoutDashboard },
   { path: "stores", titleKey: "nav.stores", icon: Store },
+  { path: "customers", titleKey: "nav.customers", icon: UserCircle },
   { path: "staff", titleKey: "nav.staff", icon: Users },
   { path: "classes", titleKey: "nav.services", icon: CalendarDays },
   { path: "schedules", titleKey: "nav.schedules", icon: CalendarDays },
@@ -43,6 +45,7 @@ export function AdminRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="stores" element={<StoresPage />} />
+        <Route path="customers" element={<CustomersPage />} />
         <Route path="staff" element={<StaffPage />} />
         <Route path="classes" element={<ServicesPage />} />
         <Route path="schedules" element={<SchedulesPage />} />

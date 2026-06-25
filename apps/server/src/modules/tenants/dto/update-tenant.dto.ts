@@ -16,4 +16,8 @@ export class UpdateTenantDto {
   @IsString()
   @IsOptional()
   contactPhone?: string;
+
+  @IsString()
+  @IsOptional()
+  agreementText?: string;
 }

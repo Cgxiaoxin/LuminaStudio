@@ -1,0 +1,55 @@
+.coaches-page {
+  padding: 32rpx;
+}
+
+.coach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.coach-card {
+  display: flex;
+  gap: 20rpx;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(23, 33, 28, 0.06);
+}
+
+.coach-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #2e6f57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  Text {
+    color: #ffffff;
+    font-size: 32rpx;
+    font-weight: 700;
+  }
+}
+
+.coach-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.coach-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #17211c;
+  margin-bottom: 8rpx;
+}
+
+.coach-bio {
+  display: block;
+  font-size: 24rpx;
+  color: #6f776f;
+  line-height: 1.5;
+}

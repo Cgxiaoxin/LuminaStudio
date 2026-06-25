@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Card, Table, Tabs, Tag, Statistic, Row, Col } from 'antd';
+import { Button, Card, Table, Tabs, Tag, Statistic, Row, Col, Popconfirm, message } from 'antd';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
 import { useI18n } from '../i18n';
@@ -10,12 +10,12 @@ const statusColors: Record<string, string> = {
 
 export default function FinancePage() {
   const { t } = useI18n();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [ledger, setLedger] = useState<any[]>([]);
   const [ledgerTotal, setLedgerTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
     setLoading(true);
     Promise.all([
       api.get('/orders', { params: { limit: 50 } }),
@@ -25,7 +25,19 @@ export default function FinancePage() {
       setLedger(lRes.data.data || []);
       setLedgerTotal(Number(lRes.data.totalAmount || 0));
     }).finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const handleRefund = async (id: number) => {
+    try {
+      await api.post(`/orders/${id}/refund`);
+      message.success(t('pages.finance.refundSuccess'));
+      load();
+    } catch (err: any) {
+      message.error(err.response?.data?.message || t('common.operationFailed'));
+    }
+  };
 
   const orderColumns = useMemo(() => [
     { title: t('pages.finance.orderNo'), dataIndex: 'orderNo', key: 'no' },
@@ -34,6 +46,15 @@ export default function FinancePage() {
     { title: t('pages.finance.paid'), dataIndex: 'paidAmount', render: (v: number) => v ? `¥${Number(v).toFixed(2)}` : '-' },
     { title: t('common.status'), dataIndex: 'status', render: (s: string) => <Tag color={statusColors[s]}>{t(`orderStatus.${s}`)}</Tag> },
     { title: t('pages.finance.paidAt'), dataIndex: 'paidAt', render: (v: string) => v ? dayjs(v).format('MM/DD HH:mm') : '-' },
+    {
+      title: t('common.actions'),
+      key: 'actions',
+      render: (_: unknown, r: any) => r.status === 'PAID' ? (
+        <Popconfirm title={t('pages.finance.refundConfirm')} onConfirm={() => handleRefund(r.id)}>
+          <Button type="link" danger>{t('pages.finance.refund')}</Button>
+        </Popconfirm>
+      ) : null,
+    },
   ], [t]);
 
   const ledgerColumns = useMemo(() => [

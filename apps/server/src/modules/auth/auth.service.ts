@@ -232,4 +232,19 @@ export class AuthService {
       totalParticipants,
     };
   }
+
+  async getAgreement(tenantId: number) {
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { brandName: true, agreementText: true, updatedAt: true },
+    });
+    if (!tenant) {
+      throw new UnauthorizedException('Tenant not found');
+    }
+    return {
+      brandName: tenant.brandName,
+      content: tenant.agreementText || '会员协议内容暂未配置，请联系门店了解详情。',
+      updatedAt: tenant.updatedAt,
+    };
+  }
 }

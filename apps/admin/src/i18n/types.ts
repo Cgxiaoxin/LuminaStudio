@@ -41,6 +41,9 @@ export type TranslationMessages = {
     loading: string;
     operationFailed: string;
     deleteFailed: string;
+    deleteConfirm: string;
+    deactivate: string;
+    days: string;
     cancelFailed: string;
     saveFailed: string;
     loadFailed: string;
@@ -62,6 +65,7 @@ export type TranslationMessages = {
     startDate: string;
     expiryDate: string;
     createdAt: string;
+    search: string;
   };
   shell: {
     operations: string;
@@ -71,11 +75,13 @@ export type TranslationMessages = {
   nav: {
     dashboard: string;
     stores: string;
+    customers: string;
     staff: string;
     services: string;
     schedules: string;
     bookings: string;
     memberships: string;
+    membershipTemplates: string;
     finance: string;
     reports: string;
     marketing: string;
@@ -109,15 +115,17 @@ export type TranslationMessages = {
   pages: {
     dashboard: { title: string; todayBookings: string; checkins: string; revenue: string; activeClients: string; recentBookings: string };
     stores: { title: string; add: string; edit: string; deleteConfirm: string; created: string; deactivated: string };
+    customers: { title: string; searchPlaceholder: string; edit: string; bookings: string; memberships: string };
     staff: { title: string; add: string; edit: string; deleteConfirm: string; displayName: string; bio: string };
     services: { title: string; add: string; edit: string; deleteConfirm: string; durationMin: string; disable: string };
     schedules: { title: string; add: string; canceled: string; spots: string; cancelConfirm: string; timeRange: string };
     bookings: { title: string; bookingNo: string; filterStatus: string; checkIn: string; checkInSuccess: string; checkInFailed: string; cancelSuccess: string; cancelConfirm: string };
-    memberships: { title: string; add: string; issue: string; cancelCard: string; remaining: string; total: string; expiredAt: string; cancelConfirm: string; membershipName: string; totalSessions: string; canceled: string; period: string };
-    finance: { title: string; orders: string; ledger: string; orderNo: string; paidAt: string; totalLedger: string; ordersCount: string; paid: string; remark: string };
+    memberships: { title: string; add: string; issue: string; issueFromTemplate: string; cancelCard: string; remaining: string; total: string; expiredAt: string; cancelConfirm: string; membershipName: string; totalSessions: string; canceled: string; period: string };
+    membershipTemplates: { title: string; subtitle: string; create: string; price: string; balance: string; validDays: string; detail: string };
+    finance: { title: string; orders: string; ledger: string; orderNo: string; paidAt: string; totalLedger: string; ordersCount: string; paid: string; remark: string; refund: string; refundConfirm: string; refundSuccess: string };
     reports: { title: string; overview: string; services: string; upcoming: string };
-    marketing: { title: string; add: string; edit: string; couponName: string; discount: string; quota: string; disabled: string; deleteConfirm: string; validPeriod: string; discountValue: string; perUserLimit: string; totalQuota: string };
-    settings: { title: string; subtitle: string; studioName: string; tenantCode: string; brandName: string; logoUrl: string; contactPhone: string; saved: string };
+    marketing: { title: string; add: string; edit: string; couponName: string; discount: string; quota: string; disabled: string; deleteConfirm: string; validPeriod: string; discountValue: string; perUserLimit: string; totalQuota: string; issueCoupon: string; issueSuccess: string; selectClient: string; selectTemplate: string };
+    settings: { title: string; subtitle: string; studioName: string; tenantCode: string; brandName: string; logoUrl: string; contactPhone: string; agreementText: string; saved: string };
   };
 };
 

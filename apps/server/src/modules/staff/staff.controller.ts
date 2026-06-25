@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Patch, Query, Req, ParseIntPipe } from '@nestjs/common';
 import { StaffService } from './staff.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
+import { UpdateStaffDto } from './dto/update-staff.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Roles } from '../auth/auth.decorator';
 import { RequestWithUser } from '../../common/types/request';
@@ -16,8 +17,22 @@ export class StaffController {
   }
 
   @Get()
-  findAll(@Query() pagination: PaginationDto, @Req() req: RequestWithUser) {
-    return this.staffService.findAll(req.user.tenantId, pagination);
+  findAll(
+    @Query() pagination: PaginationDto,
+    @Query('role') role?: string,
+    @Req() req?: RequestWithUser,
+  ) {
+    return this.staffService.findAll(req!.user.tenantId, pagination, role);
+  }
+
+  @Patch(':id')
+  @Roles('OWNER', 'ADMIN')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateStaffDto,
+    @Req() req: RequestWithUser,
+  ) {
+    return this.staffService.update(id, dto, req.user.tenantId);
   }
 
   @Get(':id')

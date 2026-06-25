@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button, Card, Table, Tag, Space, Modal, Form, Input, InputNumber, DatePicker, Select, message, Popconfirm } from 'antd';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Send } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
 import { useI18n } from '../i18n';
@@ -22,10 +22,13 @@ interface CouponTemplate {
 export default function MarketingPage() {
   const { t } = useI18n();
   const [data, setData] = useState<CouponTemplate[]>([]);
+  const [customers, setCustomers] = useState<{ id: number; nickname: string | null; phone: string | null }[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [issueOpen, setIssueOpen] = useState(false);
   const [editing, setEditing] = useState<CouponTemplate | null>(null);
   const [form] = Form.useForm();
+  const [issueForm] = Form.useForm();
 
   const fetch = async () => {
     setLoading(true);
@@ -36,6 +39,25 @@ export default function MarketingPage() {
   };
 
   useEffect(() => { fetch() }, []);
+
+  useEffect(() => {
+    if (!issueOpen) return;
+    api.get('/customers', { params: { limit: 100 } })
+      .then((res) => setCustomers(res.data.data || []))
+      .catch(() => setCustomers([]));
+  }, [issueOpen]);
+
+  const handleIssue = async () => {
+    const values = await issueForm.validateFields();
+    try {
+      await api.post('/marketing/issue', values);
+      message.success(t('pages.marketing.issueSuccess'));
+      setIssueOpen(false);
+      issueForm.resetFields();
+    } catch (err: any) {
+      message.error(err.response?.data?.message || t('common.operationFailed'));
+    }
+  };
 
   const handleSave = async () => {
     const values = await form.validateFields();
@@ -89,9 +111,14 @@ export default function MarketingPage() {
     <section className="page">
       <div className="page-header">
         <div><p className="eyebrow">{t('common.eyebrow')}</p><h1>{t('pages.marketing.title')}</h1></div>
-        <Button type="primary" icon={<Plus size={16} />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true) }}>
-          {t('pages.marketing.add')}
-        </Button>
+        <Space>
+          <Button icon={<Send size={16} />} onClick={() => { issueForm.resetFields(); setIssueOpen(true); }}>
+            {t('pages.marketing.issueCoupon')}
+          </Button>
+          <Button type="primary" icon={<Plus size={16} />} onClick={() => { setEditing(null); form.resetFields(); setModalOpen(true) }}>
+            {t('pages.marketing.add')}
+          </Button>
+        </Space>
       </div>
       <Card bordered={false}>
         <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 20 }} />
@@ -112,6 +139,28 @@ export default function MarketingPage() {
           <Form.Item name="quota" label={t('pages.marketing.totalQuota')}><InputNumber min={1} style={{ width: '100%' }} /></Form.Item>
           <Form.Item name="perUserLimit" label={t('pages.marketing.perUserLimit')}><InputNumber min={1} style={{ width: '100%' }} /></Form.Item>
           <Form.Item name="validRange" label={t('pages.marketing.validPeriod')}><DatePicker.RangePicker style={{ width: '100%' }} /></Form.Item>
+        </Form>
+      </Modal>
+      <Modal title={t('pages.marketing.issueCoupon')} open={issueOpen} onOk={handleIssue} onCancel={() => setIssueOpen(false)} width={480} okText={t('common.confirm')} cancelText={t('common.cancel')}>
+        <Form form={issueForm} layout="vertical">
+          <Form.Item name="clientId" label={t('pages.marketing.selectClient')} rules={[{ required: true }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              options={customers.map((c) => ({
+                value: c.id,
+                label: `${c.nickname || '-'} (${c.phone || c.id})`,
+              }))}
+            />
+          </Form.Item>
+          <Form.Item name="templateId" label={t('pages.marketing.selectTemplate')} rules={[{ required: true }]}>
+            <Select
+              options={data.filter((tpl) => tpl.status === 'ACTIVE').map((tpl) => ({
+                value: tpl.id,
+                label: tpl.name,
+              }))}
+            />
+          </Form.Item>
         </Form>
       </Modal>
     </section>

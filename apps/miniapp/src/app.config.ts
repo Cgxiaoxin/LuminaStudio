@@ -12,6 +12,10 @@
     'pages/profile-stats/index',
     'pages/profile-agreement/index',
     'pages/profile-orders/index',
+    'pages/profile-coupons/index',
+    'pages/profile-history/index',
+    'pages/coaches/index',
+    'pages/coach-detail/index',
     'pages/profile-edit/index',
   ],
   window: {

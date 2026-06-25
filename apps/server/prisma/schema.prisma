@@ -110,6 +110,7 @@ model Tenant {
   brandName    String?
   logoUrl      String?
   contactPhone String?
+  agreementText String?  @db.Text
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

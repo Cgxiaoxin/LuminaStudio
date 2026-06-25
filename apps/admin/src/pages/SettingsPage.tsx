@@ -59,6 +59,9 @@ export default function SettingsPage() {
           <Form.Item name="contactPhone" label={t("pages.settings.contactPhone")}>
             <Input />
           </Form.Item>
+          <Form.Item name="agreementText" label={t("pages.settings.agreementText")}>
+            <Input.TextArea rows={8} placeholder={t("pages.settings.agreementText")} />
+          </Form.Item>
           <Button type="primary" onClick={handleSave} loading={saving}>
             {t("common.save")}
           </Button>

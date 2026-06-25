@@ -24,12 +24,19 @@ interface MembershipTemplate {
   type: string;
 }
 
+interface CustomerOption {
+  id: number;
+  nickname: string | null;
+  phone: string | null;
+}
+
 const statusColors: Record<string, string> = { ACTIVE: 'green', EXHAUSTED: 'orange', EXPIRED: 'default', CANCELED: 'red' };
 
 export default function MembershipsPage() {
   const { t } = useI18n();
   const [data, setData] = useState<Membership[]>([]);
   const [templates, setTemplates] = useState<MembershipTemplate[]>([]);
+  const [customers, setCustomers] = useState<CustomerOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [issueOpen, setIssueOpen] = useState(false);
@@ -60,6 +67,13 @@ export default function MembershipsPage() {
     fetch();
     fetchTemplates();
   }, []);
+
+  useEffect(() => {
+    if (!issueOpen && !modalOpen) return;
+    api.get('/customers', { params: { limit: 100 } })
+      .then((res) => setCustomers(res.data.data || []))
+      .catch(() => setCustomers([]));
+  }, [issueOpen, modalOpen]);
 
   const handleCreate = async () => {
     const values = await form.validateFields();
@@ -139,8 +153,15 @@ export default function MembershipsPage() {
       </Card>
       <Modal title={t('pages.memberships.issueFromTemplate')} open={issueOpen} onOk={handleIssueFromTemplate} onCancel={() => setIssueOpen(false)} width={480} okText={t('common.confirm')} cancelText={t('common.cancel')}>
         <Form form={issueForm} layout="vertical">
-          <Form.Item name="clientId" label={t('common.clientId')} rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
+          <Form.Item name="clientId" label={t('common.client')} rules={[{ required: true }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              options={customers.map((c) => ({
+                value: c.id,
+                label: `${c.nickname || '-'} (${c.phone || c.id})`,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="templateId" label={t('pages.membershipTemplates.title')} rules={[{ required: true }]}>
             <Select options={templates.map(tpl => ({ value: tpl.id, label: `${tpl.name} (${t(`membershipType.${tpl.type}`)})` }))} />
@@ -149,8 +170,15 @@ export default function MembershipsPage() {
       </Modal>
       <Modal title={t('pages.memberships.add')} open={modalOpen} onOk={handleCreate} onCancel={() => setModalOpen(false)} width={520} okText={t('common.confirm')} cancelText={t('common.cancel')}>
         <Form form={form} layout="vertical">
-          <Form.Item name="clientId" label={t('common.clientId')} rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
+          <Form.Item name="clientId" label={t('common.client')} rules={[{ required: true }]}>
+            <Select
+              showSearch
+              optionFilterProp="label"
+              options={customers.map((c) => ({
+                value: c.id,
+                label: `${c.nickname || '-'} (${c.phone || c.id})`,
+              }))}
+            />
           </Form.Item>
           <Form.Item name="name" label={t('pages.memberships.membershipName')} rules={[{ required: true }]}>
             <Input />

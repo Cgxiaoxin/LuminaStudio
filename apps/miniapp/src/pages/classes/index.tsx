@@ -5,6 +5,7 @@ import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState } from '../../components/LoadingState';
+import { ErrorState } from '../../components/ErrorState';
 import { WeekStrip } from '../../components/WeekStrip';
 import { formatApiDate, formatTimeLabel, isSameDay, startOfDay } from '../../utils/date';
 import { t } from '../../i18n/messages';
@@ -19,21 +20,30 @@ export default function ClassesPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('schedule');
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadSchedules = () => {
+    setLoading(true);
+    setError(null);
+    const storeQuery = selectedStoreId ? `&storeId=${selectedStoreId}` : '';
+    const dateFrom = formatApiDate(selectedDate);
+    const dateTo = `${dateFrom}T23:59:59.999Z`;
+    const rangeQuery = viewMode === 'schedule' ? `&dateFrom=${dateFrom}&dateTo=${dateTo}` : '';
+    return request(`/schedules?limit=50${storeQuery}${rangeQuery}`)
+      .then((res: any) => setSchedules(res.data || []))
+      .catch((err: any) => {
+        setSchedules([]);
+        setError(err?.message || t('errors.loadFailed'));
+      })
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     hydrateStoreId();
   }, []);
 
   useEffect(() => {
-    setLoading(true);
-    const storeQuery = selectedStoreId ? `&storeId=${selectedStoreId}` : '';
-    const dateFrom = formatApiDate(selectedDate);
-    const dateTo = `${dateFrom}T23:59:59.999Z`;
-    const rangeQuery = viewMode === 'schedule' ? `&dateFrom=${dateFrom}&dateTo=${dateTo}` : '';
-    request(`/schedules?limit=50${storeQuery}${rangeQuery}`)
-      .then((res: any) => setSchedules(res.data || []))
-      .catch(() => setSchedules([]))
-      .finally(() => setLoading(false));
+    loadSchedules().catch(() => {});
   }, [selectedStoreId, selectedDate, viewMode]);
 
   const filtered = useMemo(() => {
@@ -148,6 +158,8 @@ export default function ClassesPage() {
 
       {loading ? (
         <LoadingState />
+      ) : error ? (
+        <ErrorState message={error} onRetry={() => loadSchedules().catch(() => {})} />
       ) : filtered.length === 0 ? (
         <EmptyState
           title={viewMode === 'schedule' ? t('classes.emptyDay') : t('classes.empty')}

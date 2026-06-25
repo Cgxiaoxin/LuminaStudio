@@ -65,6 +65,7 @@ const messages: TranslationMessages = {
     startDate: '开始日期',
     expiryDate: '到期日期',
     createdAt: '创建时间',
+    search: '搜索',
   },
   shell: {
     operations: '运营管理',
@@ -74,6 +75,7 @@ const messages: TranslationMessages = {
   nav: {
     dashboard: '仪表盘',
     stores: '门店管理',
+    customers: '客户管理',
     staff: '员工管理',
     services: '课程服务',
     schedules: '排课管理',
@@ -181,6 +183,13 @@ const messages: TranslationMessages = {
       created: '门店创建成功',
       deactivated: '门店已停用',
     },
+    customers: {
+      title: '客户管理',
+      searchPlaceholder: '搜索昵称或手机号',
+      edit: '编辑客户',
+      bookings: '预约数',
+      memberships: '会员卡数',
+    },
     staff: {
       title: '员工与教练',
       add: '新增员工',
@@ -249,6 +258,9 @@ const messages: TranslationMessages = {
       ordersCount: '订单数',
       paid: '实付',
       remark: '备注',
+      refund: '退款',
+      refundConfirm: '确定对该订单发起退款？',
+      refundSuccess: '退款成功',
     },
     reports: {
       title: '数据报表',
@@ -269,6 +281,10 @@ const messages: TranslationMessages = {
       discountValue: '优惠值',
       perUserLimit: '每人限领',
       totalQuota: '发放总量',
+      issueCoupon: '发放优惠券',
+      issueSuccess: '优惠券已发放',
+      selectClient: '选择客户',
+      selectTemplate: '选择优惠券',
     },
     settings: {
       title: '系统设置',
@@ -278,6 +294,7 @@ const messages: TranslationMessages = {
       brandName: '品牌名称',
       logoUrl: 'Logo 地址',
       contactPhone: '联系电话',
+      agreementText: '会员协议',
       saved: '设置已保存',
     },
   },

@@ -42,6 +42,7 @@ export default function VenuePage() {
   const menuLinks = [
     { label: t('venue.linkProfile'), url: '/pages/profile/index' },
     { label: t('venue.linkBuyCard'), url: '/pages/buy-membership/index' },
+    { label: t('venue.linkCoaches'), url: '/pages/coaches/index' },
     { label: t('venue.linkStats'), url: '/pages/profile-stats/index' },
     { label: t('venue.linkAgreement'), url: '/pages/profile-agreement/index' },
   ];

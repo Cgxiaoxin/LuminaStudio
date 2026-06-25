@@ -57,4 +57,10 @@ export class AuthController {
   async bindPhoneByCode(@Body() dto: BindPhoneCodeDto, @Req() req: RequestWithUser) {
     return this.authService.bindPhoneByCode(req.user.id, req.user.tenantId, dto.code);
   }
+
+  @Public()
+  @Get('agreement')
+  async getAgreement(@TenantId() tenantId?: number) {
+    return this.authService.getAgreement(tenantId || 1);
+  }
 }

@@ -10,6 +10,9 @@ import './index.scss';
 
 const menuItems = [
   { key: 'stats', labelKey: 'profile.menuStats', url: '/pages/profile-stats/index' },
+  { key: 'history', labelKey: 'profile.menuHistory', url: '/pages/profile-history/index' },
+  { key: 'coupons', labelKey: 'profile.menuCoupons', url: '/pages/profile-coupons/index' },
+  { key: 'coaches', labelKey: 'profile.menuCoaches', url: '/pages/coaches/index' },
   { key: 'agreement', labelKey: 'profile.menuAgreement', url: '/pages/profile-agreement/index' },
   { key: 'orders', labelKey: 'profile.menuOrders', url: '/pages/profile-orders/index' },
   { key: 'profile', labelKey: 'profile.menuProfile', url: '/pages/profile-edit/index' },

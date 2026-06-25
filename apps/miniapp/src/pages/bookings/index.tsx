@@ -5,6 +5,7 @@ import { request } from '../../services/api';
 import { payOrder } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState } from '../../components/LoadingState';
+import { ErrorState } from '../../components/ErrorState';
 import { bookingStatusLabel, t } from '../../i18n/messages';
 import type { Booking } from '../../types';
 import './index.scss';
@@ -22,18 +23,23 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [tab, setTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [payingId, setPayingId] = useState<number | null>(null);
 
   const loadBookings = () => {
     setLoading(true);
+    setError(null);
     const statusFilter = tab === 'upcoming' ? 'CREATED,CONFIRMED,PENDING_PAYMENT' : 'CHECKED_IN,COMPLETED,CANCELED';
-    request(`/bookings?limit=20&status=${statusFilter}`)
+    return request(`/bookings?limit=20&status=${statusFilter}`)
       .then((res: any) => setBookings(res.data || []))
-      .catch(() => setBookings([]))
+      .catch((err: any) => {
+        setBookings([]);
+        setError(err?.message || t('errors.loadFailed'));
+      })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadBookings(); }, [tab]);
+  useEffect(() => { loadBookings().catch(() => {}); }, [tab]);
 
   const handleCancel = async (id: number) => {
     try {
@@ -73,6 +79,8 @@ export default function BookingsPage() {
 
       {loading ? (
         <LoadingState />
+      ) : error ? (
+        <ErrorState message={error} onRetry={() => loadBookings().catch(() => {})} />
       ) : bookings.length === 0 ? (
         <EmptyState
           title={t('bookings.empty')}

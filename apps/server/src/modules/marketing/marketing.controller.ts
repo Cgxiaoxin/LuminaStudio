@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, ParseIntPipe, ForbiddenException } from '@nestjs/common';
 import { MarketingService } from './marketing.service';
 import { CreateCouponTemplateDto } from './dto/create-coupon-template.dto';
 import { RequestWithUser } from '../../common/types/request';
@@ -47,6 +47,14 @@ export class MarketingController {
   @Roles('OWNER', 'ADMIN', 'STAFF')
   issueCoupon(@Body() body: { templateId: number; clientId: number }, @Req() req: RequestWithUser) {
     return this.marketingService.issueCoupon(body.templateId, body.clientId, req.user.tenantId);
+  }
+
+  @Get('my-coupons')
+  findMyCoupons(@Req() req: RequestWithUser) {
+    if (req.user.type !== 'client') {
+      throw new ForbiddenException('Client only');
+    }
+    return this.marketingService.findClientCoupons(req.user.tenantId, req.user.id);
   }
 
   @Get('client-coupons/:clientId')

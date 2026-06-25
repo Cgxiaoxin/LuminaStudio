@@ -41,6 +41,9 @@ const messages: TranslationMessages = {
     loading: 'Loading',
     operationFailed: 'Operation failed',
     deleteFailed: 'Delete failed',
+    deleteConfirm: 'Are you sure?',
+    deactivate: 'Deactivate',
+    days: 'days',
     cancelFailed: 'Cancel failed',
     saveFailed: 'Save failed',
     loadFailed: 'Failed to load',
@@ -62,6 +65,7 @@ const messages: TranslationMessages = {
     startDate: 'Start Date',
     expiryDate: 'Expiry Date',
     createdAt: 'Created',
+    search: 'Search',
   },
   shell: {
     operations: 'Operations',
@@ -71,6 +75,7 @@ const messages: TranslationMessages = {
   nav: {
     dashboard: 'Dashboard',
     stores: 'Stores',
+    customers: 'Customers',
     staff: 'Staff',
     services: 'Services',
     schedules: 'Schedules',
@@ -178,6 +183,13 @@ const messages: TranslationMessages = {
       created: 'Store created',
       deactivated: 'Store deactivated',
     },
+    customers: {
+      title: 'Customers',
+      searchPlaceholder: 'Search nickname or phone',
+      edit: 'Edit Customer',
+      bookings: 'Bookings',
+      memberships: 'Memberships',
+    },
     staff: {
       title: 'Staff & Coaches',
       add: 'Add Staff',
@@ -246,6 +258,9 @@ const messages: TranslationMessages = {
       ordersCount: 'Orders',
       paid: 'Paid',
       remark: 'Remark',
+      refund: 'Refund',
+      refundConfirm: 'Refund this order?',
+      refundSuccess: 'Refunded',
     },
     reports: {
       title: 'Reports',
@@ -266,6 +281,10 @@ const messages: TranslationMessages = {
       discountValue: 'Discount Value',
       perUserLimit: 'Per User Limit',
       totalQuota: 'Total Quota',
+      issueCoupon: 'Issue Coupon',
+      issueSuccess: 'Coupon issued',
+      selectClient: 'Select Client',
+      selectTemplate: 'Select Coupon',
     },
     settings: {
       title: 'Settings',
@@ -275,6 +294,7 @@ const messages: TranslationMessages = {
       brandName: 'Brand Name',
       logoUrl: 'Logo URL',
       contactPhone: 'Contact Phone',
+      agreementText: 'Membership Agreement',
       saved: 'Settings saved',
     },
   },

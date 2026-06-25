@@ -19,15 +19,18 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         const today = dayjs().format('YYYY-MM-DD');
-        const bookingRes = await api.get('/bookings', { params: { dateFrom: today, dateTo: today, limit: 10 } });
-        const bookings = bookingRes.data.data || [];
-        setRecentBookings(bookings);
+        const [dashRes, bookingRes] = await Promise.all([
+          api.get('/reports/dashboard'),
+          api.get('/bookings', { params: { dateFrom: today, dateTo: today, limit: 10 } }),
+        ]);
+        const dash = dashRes.data;
         setStats({
-          todayBookings: bookings.length,
-          checkins: bookings.filter((b: any) => b.status === 'CHECKED_IN' || b.status === 'COMPLETED').length,
-          revenue: bookings.reduce((s: number, b: any) => s + Number(b.paidAmount || 0), 0),
-          activeClients: new Set(bookings.map((b: any) => b.clientId)).size,
+          todayBookings: dash.todayBookings ?? 0,
+          checkins: dash.todayCheckins ?? 0,
+          revenue: Number(dash.todayRevenue ?? 0),
+          activeClients: dash.activeClients ?? 0,
         });
+        setRecentBookings(bookingRes.data.data || []);
       } catch {
         // ignore
       }
