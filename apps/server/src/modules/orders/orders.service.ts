@@ -99,6 +99,11 @@ export class OrdersService {
         data: { status: 'REFUNDED', refundedAt: new Date() },
       });
 
+      await tx.payment.updateMany({
+        where: { orderId: id, tenantId, status: 'PAID' },
+        data: { status: 'REFUNDED' },
+      });
+
       if (order.bookingId && order.booking) {
         if (order.booking.usedMembershipId) {
           const membership = await tx.membership.findUnique({
@@ -146,5 +151,56 @@ export class OrdersService {
 
       return { success: true, orderId: id };
     });
+  }
+
+  async reconcileRefunds(tenantId: number) {
+    const refundedOrders = await this.prisma.order.findMany({
+      where: { tenantId, status: 'REFUNDED' },
+      include: { payments: true },
+      orderBy: { id: 'asc' },
+    });
+
+    const issues: Array<{
+      orderId: number;
+      orderNo: string;
+      issue: string;
+      expected?: number;
+      actual?: number;
+    }> = [];
+
+    for (const order of refundedOrders) {
+      const paidAmount = Number(order.paidAmount || 0);
+      const refundEntries = await this.prisma.ledgerEntry.aggregate({
+        where: { tenantId, orderId: order.id, type: 'REFUND' },
+        _sum: { amount: true },
+      });
+      const ledgerRefund = Number(refundEntries._sum.amount || 0);
+      const expectedRefund = paidAmount > 0 ? -paidAmount : 0;
+
+      if (paidAmount > 0 && ledgerRefund !== expectedRefund) {
+        issues.push({
+          orderId: order.id,
+          orderNo: order.orderNo,
+          issue: 'REFUND_LEDGER_MISMATCH',
+          expected: expectedRefund,
+          actual: ledgerRefund,
+        });
+      }
+
+      const stalePaidPayments = order.payments.filter((payment) => payment.status === 'PAID');
+      if (stalePaidPayments.length > 0) {
+        issues.push({
+          orderId: order.id,
+          orderNo: order.orderNo,
+          issue: 'PAYMENT_NOT_REFUNDED',
+        });
+      }
+    }
+
+    return {
+      checked: refundedOrders.length,
+      issues,
+      ok: issues.length === 0,
+    };
   }
 }

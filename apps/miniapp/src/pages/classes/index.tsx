@@ -1,12 +1,13 @@
 ﻿import { useState, useEffect, useMemo } from 'react';
 import { Text, View, Picker } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { EmptyState } from '../../components/EmptyState';
-import { LoadingState } from '../../components/LoadingState';
+import { SkeletonState } from '../../components/SkeletonState';
 import { ErrorState } from '../../components/ErrorState';
 import { WeekStrip } from '../../components/WeekStrip';
+import { useTabBarPage } from '../../hooks/useTabBarPage';
 import { formatApiDate, formatTimeLabel, isSameDay, startOfDay } from '../../utils/date';
 import { t } from '../../i18n/messages';
 import './index.scss';
@@ -14,6 +15,7 @@ import './index.scss';
 type ViewMode = 'schedule' | 'list';
 
 export default function ClassesPage() {
+  useTabBarPage(1);
   const { selectedStoreId, hydrateStoreId } = useAppStore();
   const [schedules, setSchedules] = useState<any[]>([]);
   const [filter, setFilter] = useState('ALL');
@@ -45,6 +47,10 @@ export default function ClassesPage() {
   useEffect(() => {
     loadSchedules().catch(() => {});
   }, [selectedStoreId, selectedDate, viewMode]);
+
+  usePullDownRefresh(() => {
+    loadSchedules().finally(() => Taro.stopPullDownRefresh());
+  });
 
   const filtered = useMemo(() => {
     const byType = filter === 'ALL'
@@ -157,7 +163,7 @@ export default function ClassesPage() {
       </View>
 
       {loading ? (
-        <LoadingState />
+        <SkeletonState rows={4} />
       ) : error ? (
         <ErrorState message={error} onRetry={() => loadSchedules().catch(() => {})} />
       ) : filtered.length === 0 ? (

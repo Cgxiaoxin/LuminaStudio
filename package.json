@@ -19,7 +19,10 @@
     "prisma:migrate": "npm run prisma:migrate -w @luminastudio/server",
     "prisma:seed": "npm run prisma:seed -w @luminastudio/server",
     "db:setup": "npm run db:setup -w @luminastudio/server",
+    "db:migrate": "npm run db:migrate -w @luminastudio/server",
+    "db:deploy": "npm run db:deploy -w @luminastudio/server",
     "test:server": "npm run test -w @luminastudio/server",
+    "test:concurrency": "npm run test:concurrency -w @luminastudio/server",
     "e2e": "npm run e2e -w @luminastudio/server"
   },
   "engines": {

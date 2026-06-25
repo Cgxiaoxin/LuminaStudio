@@ -4,7 +4,8 @@ import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { QueryScheduleDto } from './dto/query-schedule.dto';
 import { RequestWithUser } from '../../common/types/request';
-import { Roles } from '../auth/auth.decorator';
+import { Roles, Public } from '../auth/auth.decorator';
+import { resolveTenantId } from '../../common/utils/resolve-tenant';
 
 @Controller('schedules')
 export class SchedulesController {
@@ -17,13 +18,15 @@ export class SchedulesController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() query: QueryScheduleDto, @Req() req: RequestWithUser) {
-    return this.schedulesService.findAll(req.user.tenantId, query);
+    return this.schedulesService.findAll(resolveTenantId(req), query);
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.schedulesService.findOne(id, req.user.tenantId);
+    return this.schedulesService.findOne(id, resolveTenantId(req));
   }
 
   @Patch(':id')

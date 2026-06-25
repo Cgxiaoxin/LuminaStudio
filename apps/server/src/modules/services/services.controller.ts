@@ -3,6 +3,8 @@ import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { RequestWithUser } from '../../common/types/request';
+import { Public } from '../auth/auth.decorator';
+import { resolveTenantId } from '../../common/utils/resolve-tenant';
 
 @Controller('services')
 export class ServicesController {
@@ -14,13 +16,15 @@ export class ServicesController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() pagination: PaginationDto, @Req() req: RequestWithUser) {
-    return this.servicesService.findAll(req.user.tenantId, pagination);
+    return this.servicesService.findAll(resolveTenantId(req), pagination);
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.servicesService.findOne(id, req.user.tenantId);
+    return this.servicesService.findOne(id, resolveTenantId(req));
   }
 
   @Patch(':id')

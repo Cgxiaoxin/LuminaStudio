@@ -17,6 +17,9 @@
     "prisma:seed": "node -r ts-node/register/transpile-only prisma/seed.ts",
     "prisma:studio": "prisma studio",
     "db:setup": "node scripts/create-database.mjs && prisma db push && npm run prisma:seed",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "test:concurrency": "node scripts/booking-concurrency.mjs",
     "e2e": "npm run prisma:seed && node scripts/e2e-flow.mjs"
   },
   "prisma": {

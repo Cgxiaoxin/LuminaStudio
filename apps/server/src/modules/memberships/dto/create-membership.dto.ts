@@ -9,13 +9,17 @@ export class CreateMembershipDto {
   @IsNotEmpty()
   name: string;
 
-  @IsEnum(['COUNT_BASED', 'DURATION_BASED', 'HYBRID'])
+  @IsEnum(['COUNT_BASED', 'DURATION_BASED', 'STORED_VALUE', 'HYBRID'])
   type: string;
 
   @IsInt()
   @IsOptional()
   @Min(1)
   totalTimes?: number;
+
+  @IsOptional()
+  @Min(0)
+  balanceAmount?: number;
 
   @IsDateString()
   @IsOptional()

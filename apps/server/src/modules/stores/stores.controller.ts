@@ -4,6 +4,8 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { RequestWithUser } from '../../common/types/request';
+import { Public } from '../auth/auth.decorator';
+import { resolveTenantId } from '../../common/utils/resolve-tenant';
 
 @Controller('stores')
 export class StoresController {
@@ -15,13 +17,15 @@ export class StoresController {
   }
 
   @Get()
+  @Public()
   findAll(@Query() pagination: PaginationDto, @Req() req: RequestWithUser) {
-    return this.storesService.findAll(req.user.tenantId, pagination);
+    return this.storesService.findAll(resolveTenantId(req), pagination);
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.storesService.findOne(id, req.user.tenantId);
+    return this.storesService.findOne(id, resolveTenantId(req));
   }
 
   @Patch(':id')

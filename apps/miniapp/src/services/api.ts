@@ -2,6 +2,14 @@ import Taro from '@tarojs/taro';
 import { apiBaseUrl } from './config';
 import { t } from '../i18n/messages';
 
+const DEFAULT_TENANT_ID = '1';
+
+export function ensureGuestContext() {
+  if (!Taro.getStorageSync('tenantId')) {
+    Taro.setStorageSync('tenantId', DEFAULT_TENANT_ID);
+  }
+}
+
 export function formatRequestError(err: unknown): string {
   const errMsg =
     (err as { errMsg?: string })?.errMsg ||
@@ -17,9 +25,15 @@ export function formatRequestError(err: unknown): string {
   return errMsg || t('common.failed');
 }
 
-export function request<T = any>(url: string, options?: Taro.request.Option): Promise<T> {
+export function request<T = any>(url: string, options?: Taro.request.Option & { auth?: boolean }): Promise<T> {
+  ensureGuestContext();
   const token = Taro.getStorageSync('token');
-  const tenantId = Taro.getStorageSync('tenantId');
+  const tenantId = Taro.getStorageSync('tenantId') || DEFAULT_TENANT_ID;
+  const requireAuth = options?.auth !== false && !token && isProtectedPath(url, options?.method);
+
+  if (requireAuth) {
+    return Promise.reject(new Error(t('errors.loginRequired')));
+  }
 
   return new Promise((resolve, reject) => {
     Taro.request({
@@ -27,14 +41,16 @@ export function request<T = any>(url: string, options?: Taro.request.Option): Pr
       header: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(tenantId ? { 'X-Tenant-Id': tenantId } : {}),
+        'X-Tenant-Id': tenantId,
       },
       ...options,
       success: (res) => {
         if (res.statusCode === 401) {
+          const hadToken = !!token;
           Taro.removeStorageSync('token');
-          Taro.removeStorageSync('tenantId');
-          Taro.reLaunch({ url: '/pages/login/index' });
+          if (hadToken) {
+            Taro.reLaunch({ url: '/pages/login/index' });
+          }
           reject(new Error(t('errors.unauthorized')));
           return;
         }
@@ -48,4 +64,12 @@ export function request<T = any>(url: string, options?: Taro.request.Option): Pr
       fail: (err) => reject(new Error(formatRequestError(err))),
     });
   });
+}
+
+function isProtectedPath(url: string, method?: string) {
+  const upperMethod = (method || 'GET').toUpperCase();
+  if (upperMethod === 'GET' || upperMethod === 'HEAD') {
+    return /^\/(bookings|memberships|orders|marketing\/my-coupons|auth\/(profile|client-stats|bind-phone))/.test(url);
+  }
+  return true;
 }

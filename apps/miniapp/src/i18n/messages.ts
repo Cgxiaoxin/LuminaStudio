@@ -22,6 +22,7 @@ export const messages = {
     domainNotAllowed: '请在开发者工具「详情→本地设置」勾选不校验合法域名',
     networkFailed: '网络请求失败，请确认后端已启动',
     unauthorized: '登录已过期，请重新登录',
+    loginRequired: '请先登录后查看',
   },
   login: {
     title: '登录',

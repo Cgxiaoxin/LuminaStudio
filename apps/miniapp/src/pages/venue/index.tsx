@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Text, View, Picker } from '@tarojs/components';
-import Taro, { useShareAppMessage } from '@tarojs/taro';
+import Taro, { useShareAppMessage, usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { StoreInfoBar } from '../../components/StoreInfoBar';
-import { LoadingState } from '../../components/LoadingState';
+import { SkeletonState } from '../../components/SkeletonState';
 import { formatBusinessHours, type StoreInfo } from '../../types/store';
+import { useTabBarPage } from '../../hooks/useTabBarPage';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
 export default function VenuePage() {
+  useTabBarPage(3);
   const { selectedStoreId, setSelectedStoreId, hydrateStoreId } = useAppStore();
   const [stores, setStores] = useState<StoreInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,10 +23,9 @@ export default function VenuePage() {
     path: '/pages/home/index',
   }));
 
-  useEffect(() => {
-    hydrateStoreId();
+  const loadStores = useCallback(() => {
     setLoading(true);
-    request('/stores')
+    return request('/stores')
       .then((res: any) => {
         const list = res.data?.data || res.data || [];
         setStores(list);
@@ -34,7 +35,16 @@ export default function VenuePage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+  }, [selectedStoreId, setSelectedStoreId]);
+
+  useEffect(() => {
+    hydrateStoreId();
+    loadStores().catch(() => {});
   }, []);
+
+  usePullDownRefresh(() => {
+    loadStores().finally(() => Taro.stopPullDownRefresh());
+  });
 
   const storeRange = stores.map(s => s.name);
   const hours = formatBusinessHours(currentStore?.businessHours) || t('venue.defaultHours');
@@ -50,7 +60,7 @@ export default function VenuePage() {
   return (
     <View className="venue-page">
       {loading ? (
-        <LoadingState />
+        <SkeletonState rows={2} />
       ) : (
         <>
           <View className="venue-hero">

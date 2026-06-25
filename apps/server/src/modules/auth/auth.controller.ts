@@ -63,4 +63,10 @@ export class AuthController {
   async getAgreement(@TenantId() tenantId?: number) {
     return this.authService.getAgreement(tenantId || 1);
   }
+
+  @Public()
+  @Get('wechat-config')
+  getWeChatConfig() {
+    return this.authService.getWeChatConfigStatus();
+  }
 }

@@ -25,6 +25,7 @@
     navigationBarTextStyle: 'black',
   },
   tabBar: {
+    custom: true,
     color: '#6f776f',
     selectedColor: '#17211c',
     backgroundColor: '#ffffff',

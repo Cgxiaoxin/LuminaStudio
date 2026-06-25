@@ -31,6 +31,12 @@ export class OrdersController {
     });
   }
 
+  @Get('reconcile-refunds')
+  @Roles('OWNER', 'ADMIN')
+  reconcileRefunds(@Req() req: RequestWithUser) {
+    return this.ordersService.reconcileRefunds(req.user.tenantId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
     return this.ordersService.findOne(id, req.user.tenantId, req.user.type === 'client' ? req.user.id : undefined);

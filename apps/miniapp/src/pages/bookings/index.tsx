@@ -1,11 +1,12 @@
 ﻿import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
-import { showToast } from '@tarojs/taro';
+import Taro, { showToast, usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { payOrder } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
-import { LoadingState } from '../../components/LoadingState';
+import { SkeletonState } from '../../components/SkeletonState';
 import { ErrorState } from '../../components/ErrorState';
+import { useTabBarPage } from '../../hooks/useTabBarPage';
 import { bookingStatusLabel, t } from '../../i18n/messages';
 import type { Booking } from '../../types';
 import './index.scss';
@@ -20,13 +21,23 @@ const statusColors: Record<string, string> = {
 };
 
 export default function BookingsPage() {
+  useTabBarPage(2);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [tab, setTab] = useState('upcoming');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsLogin, setNeedsLogin] = useState(false);
   const [payingId, setPayingId] = useState<number | null>(null);
 
   const loadBookings = () => {
+    if (!Taro.getStorageSync('token')) {
+      setNeedsLogin(true);
+      setBookings([]);
+      setLoading(false);
+      setError(null);
+      return Promise.resolve();
+    }
+    setNeedsLogin(false);
     setLoading(true);
     setError(null);
     const statusFilter = tab === 'upcoming' ? 'CREATED,CONFIRMED,PENDING_PAYMENT' : 'CHECKED_IN,COMPLETED,CANCELED';
@@ -40,6 +51,10 @@ export default function BookingsPage() {
   };
 
   useEffect(() => { loadBookings().catch(() => {}); }, [tab]);
+
+  usePullDownRefresh(() => {
+    loadBookings().finally(() => Taro.stopPullDownRefresh());
+  });
 
   const handleCancel = async (id: number) => {
     try {
@@ -78,7 +93,13 @@ export default function BookingsPage() {
       </View>
 
       {loading ? (
-        <LoadingState />
+        <SkeletonState rows={3} />
+      ) : needsLogin ? (
+        <EmptyState
+          title={t('errors.loginRequired')}
+          actionLabel={t('login.submit')}
+          onAction={() => Taro.navigateTo({ url: '/pages/login/index' })}
+        />
       ) : error ? (
         <ErrorState message={error} onRetry={() => loadBookings().catch(() => {})} />
       ) : bookings.length === 0 ? (

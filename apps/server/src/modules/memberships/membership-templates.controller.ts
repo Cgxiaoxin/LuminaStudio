@@ -2,7 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, ParseInt
 import { MembershipTemplatesService } from './membership-templates.service';
 import { CreateMembershipTemplateDto } from './dto/create-membership-template.dto';
 import { RequestWithUser } from '../../common/types/request';
-import { Roles } from '../auth/auth.decorator';
+import { Roles, Public } from '../auth/auth.decorator';
+import { resolveTenantId } from '../../common/utils/resolve-tenant';
 
 @Controller('membership-templates')
 export class MembershipTemplatesController {
@@ -15,6 +16,7 @@ export class MembershipTemplatesController {
   }
 
   @Get()
+  @Public()
   findAll(
     @Query('type') type?: string,
     @Query('status') status?: string,
@@ -22,7 +24,7 @@ export class MembershipTemplatesController {
     @Query('limit') limit?: number,
     @Req() req?: RequestWithUser,
   ) {
-    return this.templatesService.findAll(req!.user.tenantId, {
+    return this.templatesService.findAll(resolveTenantId(req!), {
       type,
       status: status || 'ACTIVE',
       page,
@@ -31,8 +33,9 @@ export class MembershipTemplatesController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.templatesService.findOne(id, req.user.tenantId);
+    return this.templatesService.findOne(id, resolveTenantId(req));
   }
 
   @Patch(':id')

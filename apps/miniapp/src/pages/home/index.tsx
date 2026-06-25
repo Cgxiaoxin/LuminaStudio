@@ -1,12 +1,13 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { Text, View, Picker } from '@tarojs/components';
-import Taro, { useShareAppMessage } from '@tarojs/taro';
+import Taro, { useShareAppMessage, usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { EmptyState } from '../../components/EmptyState';
-import { LoadingState } from '../../components/LoadingState';
+import { SkeletonState } from '../../components/SkeletonState';
 import { StoreInfoBar } from '../../components/StoreInfoBar';
 import { formatBusinessHours, type StoreInfo } from '../../types/store';
+import { useTabBarPage } from '../../hooks/useTabBarPage';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
@@ -18,6 +19,7 @@ const quickActions = [
 ];
 
 export default function HomePage() {
+  useTabBarPage(0);
   const { selectedStoreId, setSelectedStoreId, hydrateStoreId } = useAppStore();
   const [stores, setStores] = useState<StoreInfo[]>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -33,8 +35,12 @@ export default function HomePage() {
 
   useEffect(() => {
     hydrateStoreId();
+    loadStores();
+  }, []);
+
+  const loadStores = useCallback(() => {
     setLoadingStores(true);
-    request('/stores')
+    return request('/stores')
       .then((res: any) => {
         const list = res.data?.data || res.data || [];
         setStores(list);
@@ -44,16 +50,25 @@ export default function HomePage() {
       })
       .catch(() => {})
       .finally(() => setLoadingStores(false));
-  }, []);
+  }, [selectedStoreId, setSelectedStoreId]);
 
-  useEffect(() => {
-    if (!selectedStoreId) return;
+  const loadSchedules = useCallback(() => {
+    if (!selectedStoreId) return Promise.resolve();
     setLoadingSchedules(true);
-    request(`/schedules?storeId=${selectedStoreId}&limit=5`)
+    return request(`/schedules?storeId=${selectedStoreId}&limit=5`)
       .then((res: any) => setSchedules(res.data || []))
       .catch(() => setSchedules([]))
       .finally(() => setLoadingSchedules(false));
   }, [selectedStoreId]);
+
+  useEffect(() => {
+    loadSchedules().catch(() => {});
+  }, [loadSchedules]);
+
+  usePullDownRefresh(() => {
+    Promise.all([loadStores(), loadSchedules()])
+      .finally(() => Taro.stopPullDownRefresh());
+  });
 
   const storeRange = stores.map(s => s.name);
   const hours = formatBusinessHours(currentStore?.businessHours) || t('venue.defaultHours');
@@ -72,7 +87,7 @@ export default function HomePage() {
         <Text className="brand">{t('common.brand')}</Text>
         <Text className="hero-subtitle">{t('home.heroSubtitle')}</Text>
         {loadingStores ? (
-          <LoadingState />
+          <SkeletonState rows={2} />
         ) : (
           <>
             <Picker
@@ -124,7 +139,7 @@ export default function HomePage() {
         </View>
 
         {loadingSchedules ? (
-          <LoadingState />
+          <SkeletonState rows={3} />
         ) : schedules.length === 0 ? (
           <EmptyState
             title={t('home.noUpcoming')}

@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdminLoginDto, WeappLoginDto } from './dto/login.dto';
@@ -11,6 +12,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private wechatService: WeChatService,
+    private config: ConfigService,
   ) {}
 
   async adminLogin(dto: AdminLoginDto, tenantId: number) {
@@ -245,6 +247,34 @@ export class AuthService {
       brandName: tenant.brandName,
       content: tenant.agreementText || '会员协议内容暂未配置，请联系门店了解详情。',
       updatedAt: tenant.updatedAt,
+    };
+  }
+
+  getWeChatConfigStatus() {
+    const appId = this.config.get<string>('WECHAT_APPID');
+    const secret = this.config.get<string>('WECHAT_SECRET');
+    const mchId = this.config.get<string>('WECHAT_MCH_ID');
+    const apiKey = this.config.get<string>('WECHAT_API_V3_KEY');
+    const notifyUrl = this.config.get<string>('WECHAT_PAY_NOTIFY_URL');
+
+    const loginConfigured = !!(appId && secret && appId !== 'your-appid' && secret !== 'your-secret');
+    const paymentConfigured = !!(loginConfigured && mchId && apiKey && notifyUrl);
+
+    return {
+      loginDevMode: !loginConfigured,
+      paymentDevMode: !paymentConfigured,
+      loginConfigured,
+      paymentConfigured,
+      missing: [
+        !appId || appId === 'your-appid' ? 'WECHAT_APPID' : null,
+        !secret || secret === 'your-secret' ? 'WECHAT_SECRET' : null,
+        !mchId ? 'WECHAT_MCH_ID' : null,
+        !apiKey ? 'WECHAT_API_V3_KEY' : null,
+        !notifyUrl ? 'WECHAT_PAY_NOTIFY_URL' : null,
+      ].filter(Boolean),
+      hint: paymentConfigured
+        ? '微信登录与支付已配置，可使用真实环境。'
+        : '开发环境将使用 dev_openid_demo 与模拟支付；生产请配置 .env 中微信相关变量。',
     };
   }
 }
