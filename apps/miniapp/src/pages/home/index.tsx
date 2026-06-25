@@ -5,6 +5,7 @@ import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { EmptyState } from '../../components/EmptyState';
 import { SkeletonState } from '../../components/SkeletonState';
+import { TimeBadge } from '../../components/TimeBadge';
 import { StoreInfoBar } from '../../components/StoreInfoBar';
 import { formatBusinessHours, type StoreInfo } from '../../types/store';
 import { useTabBarPage } from '../../hooks/useTabBarPage';
@@ -155,11 +156,7 @@ export default function HomePage() {
                 className="class-card"
                 onClick={() => Taro.navigateTo({ url: `/pages/class-detail/index?scheduleId=${s.id}` })}
               >
-                <View className="class-time-badge">
-                  <Text className="class-time">
-                    {new Date(s.startAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </View>
+                <TimeBadge iso={s.startAt} />
                 <View className="class-info">
                   <Text className="class-name">{s.service?.name || '-'}</Text>
                   <Text className="class-coach">{s.coach?.displayName || '-'}</Text>

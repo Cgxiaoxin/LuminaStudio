@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Text, View, Button } from '@tarojs/components';
 import Taro, { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
-import { payOrder } from '../../services/payment';
+import { payOrder, isPaymentCanceled } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
 import { LoadingState } from '../../components/LoadingState';
 import { membershipTypeLabel, t } from '../../i18n/messages';
@@ -33,17 +33,27 @@ export default function BuyMembershipPage() {
 
   const handleBuy = async (tpl: MembershipTemplate) => {
     if (buyingId) return;
+
+    const price = Number(tpl.price);
+    const { confirm } = await Taro.showModal({
+      title: t('buyMembership.confirmPayTitle'),
+      content: t('buyMembership.confirmPayContent', { name: tpl.name, price: price.toFixed(2) }),
+      confirmText: t('buyMembership.confirmPay'),
+      cancelText: t('common.cancel'),
+    });
+    if (!confirm) return;
+
     setBuyingId(tpl.id);
     try {
       const result: any = await request(`/membership-templates/${tpl.id}/purchase`, {
         method: 'POST',
         data: {},
       });
-      await payOrder(result.order.id);
+      await payOrder(result.order.id, { title: tpl.name, amount: price });
       showToast({ title: t('buyMembership.success'), icon: 'success' });
       setTimeout(() => Taro.navigateTo({ url: '/pages/profile/index' }), 1200);
     } catch (err: any) {
-      const msg = err?.errMsg?.includes('cancel') ? t('bookings.payCanceled') : (err.message || t('common.failed'));
+      const msg = isPaymentCanceled(err) ? t('bookings.payCanceled') : (err.message || t('common.failed'));
       showToast({ title: msg, icon: 'none' });
     } finally {
       setBuyingId(null);

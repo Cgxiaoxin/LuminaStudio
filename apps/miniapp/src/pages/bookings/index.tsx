@@ -2,7 +2,7 @@
 import { Text, View, Button } from '@tarojs/components';
 import Taro, { showToast, usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
-import { payOrder } from '../../services/payment';
+import { payOrder, isPaymentCanceled } from '../../services/payment';
 import { EmptyState } from '../../components/EmptyState';
 import { SkeletonState } from '../../components/SkeletonState';
 import { ErrorState } from '../../components/ErrorState';
@@ -75,7 +75,7 @@ export default function BookingsPage() {
       showToast({ title: t('bookings.paySuccess'), icon: 'success' });
       loadBookings();
     } catch (err: any) {
-      const msg = err?.errMsg?.includes('cancel') ? t('bookings.payCanceled') : (err.message || t('common.failed'));
+      const msg = isPaymentCanceled(err) ? t('bookings.payCanceled') : (err.message || t('common.failed'));
       showToast({ title: msg, icon: 'none' });
     } finally {
       setPayingId(null);

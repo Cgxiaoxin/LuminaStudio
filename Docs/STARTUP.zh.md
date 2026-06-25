@@ -34,6 +34,9 @@ npm run db:setup
 | 2 | `npm run dev:admin` | 管理后台：`http://localhost:5173` |
 | 3（可选） | `npm run dev:miniapp` | 微信小程序（见下方说明） |
 
+店主：admin / admin123（OWNER，后台全功能）
+教练：coach1 / coach123（COACH，已绑定主店，可登录后台）
+
 **微信小程序开发者工具：**
 
 1. 先在终端运行 `npm run dev:miniapp`，等待编译完成（产物在 `apps/miniapp/dist/`）

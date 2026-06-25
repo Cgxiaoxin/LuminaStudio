@@ -1,0 +1,33 @@
+@import '../../styles/tokens.scss';
+
+.time-badge {
+  flex-shrink: 0;
+  width: 88rpx;
+  height: 88rpx;
+  background: $color-surface-muted;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rpx;
+  text-align: center;
+}
+
+.time-badge__period {
+  font-size: 20rpx;
+  font-weight: 600;
+  color: $color-primary;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+}
+
+.time-badge__time {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: $color-primary;
+  line-height: 1.2;
+  width: 100%;
+  text-align: center;
+}

@@ -33,7 +33,7 @@ export function AdminShell({ children, pages }: AdminShellProps) {
       <aside className="sidebar">
         <div className="brand">
           <span className="brand-mark">LS</span>
-          <div>
+          <div className="brand-text">
             <strong>{t("common.brand")}</strong>
             <span>{t("shell.operations")}</span>
           </div>

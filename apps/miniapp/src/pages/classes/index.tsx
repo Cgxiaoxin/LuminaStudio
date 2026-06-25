@@ -1,14 +1,15 @@
 ﻿import { useState, useEffect, useMemo } from 'react';
-import { Text, View, Picker } from '@tarojs/components';
+import { Text, View } from '@tarojs/components';
 import Taro, { usePullDownRefresh } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { EmptyState } from '../../components/EmptyState';
 import { SkeletonState } from '../../components/SkeletonState';
 import { ErrorState } from '../../components/ErrorState';
-import { WeekStrip } from '../../components/WeekStrip';
+import { TimeBadge } from '../../components/TimeBadge';
 import { useTabBarPage } from '../../hooks/useTabBarPage';
-import { formatApiDate, formatTimeLabel, isSameDay, startOfDay } from '../../utils/date';
+import { MonthCalendar } from '../../components/MonthCalendar';
+import { formatApiDate, formatSelectedDateLabel, isSameDay, startOfDay } from '../../utils/date';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
@@ -21,6 +22,8 @@ export default function ClassesPage() {
   const [filter, setFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState<ViewMode>('schedule');
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [viewMonth, setViewMonth] = useState(() => startOfDay(new Date()));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,12 +67,15 @@ export default function ClassesPage() {
       .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
   }, [schedules, filter, viewMode, selectedDate]);
 
+  const handleSelectDate = (date: Date) => {
+    setSelectedDate(date);
+    setViewMonth(startOfDay(new Date(date.getFullYear(), date.getMonth(), 1)));
+  };
+
   const typeLabels: Record<string, string> = {
     GROUP_CLASS: t('classes.group'),
     PRIVATE_SESSION: t('classes.private'),
   };
-
-  const pickerDate = formatApiDate(selectedDate);
 
   const renderCard = (s: any) => (
     <View
@@ -79,7 +85,7 @@ export default function ClassesPage() {
     >
       {viewMode === 'schedule' && (
         <View className="class-card__time-col">
-          <Text className="class-card__time">{formatTimeLabel(s.startAt)}</Text>
+          <TimeBadge iso={s.startAt} />
         </View>
       )}
       <View className="class-card__body">
@@ -140,17 +146,25 @@ export default function ClassesPage() {
         <View className="schedule-panel">
           <View className="schedule-panel__head">
             <Text className="schedule-panel__title">{t('classes.scheduleTitle')}</Text>
-            <Picker
-              mode="date"
-              value={pickerDate}
-              onChange={(e) => setSelectedDate(startOfDay(new Date(e.detail.value)))}
+            <View
+              className={`calendar-btn ${calendarOpen ? 'calendar-btn--active' : ''}`}
+              onClick={() => setCalendarOpen((open) => !open)}
             >
-              <View className="calendar-btn">
-                <Text>{t('classes.pickDate')}</Text>
-              </View>
-            </Picker>
+              <Text>{calendarOpen ? t('classes.collapseCalendar') : t('classes.pickDate')}</Text>
+            </View>
           </View>
-          <WeekStrip selected={selectedDate} onSelect={setSelectedDate} />
+          {calendarOpen ? (
+            <MonthCalendar
+              selected={selectedDate}
+              viewMonth={viewMonth}
+              onSelect={handleSelectDate}
+              onViewMonthChange={setViewMonth}
+            />
+          ) : (
+            <Text className="schedule-panel__date">
+              {t('classes.selectedDate', { date: formatSelectedDateLabel(selectedDate) })}
+            </Text>
+          )}
         </View>
       )}
 

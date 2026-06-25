@@ -23,19 +23,28 @@ body {
 .brand {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: flex-end;
+  margin-top: 18px;
   margin-bottom: 28px;
 }
 
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
   background: #d6ef71;
   color: #17211c;
   font-weight: 800;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .brand strong,
@@ -43,9 +52,16 @@ body {
   display: block;
 }
 
+.brand strong {
+  font-size: 17px;
+  line-height: 1.25;
+}
+
 .brand span {
   color: #aab8ad;
-  font-size: 12px;
+  font-size: 13px;
+  margin-top: 6px;
+  line-height: 1.3;
 }
 
 .nav-item {
@@ -136,8 +152,7 @@ body {
 .sidebar-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   padding-top: 16px;
   border-top: 1px solid #26352d;
   margin-top: auto;
@@ -147,10 +162,13 @@ body {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .lang-switcher {
-  min-width: 108px;
+  min-width: 100px;
+  margin-right: -34px;
 }
 
 .lang-switcher .ant-select-selector {
@@ -162,12 +180,17 @@ body {
 .user-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .user-name {
   font-size: 14px;
   font-weight: 600;
   color: #eef4ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-role {

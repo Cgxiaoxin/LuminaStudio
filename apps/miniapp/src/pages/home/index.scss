@@ -107,23 +107,6 @@
   box-shadow: $shadow-panel;
 }
 
-.class-time-badge {
-  flex-shrink: 0;
-  width: 88rpx;
-  height: 88rpx;
-  background: $color-surface-muted;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.class-time {
-  font-size: 26rpx;
-  font-weight: 700;
-  color: $color-primary;
-}
-
 .class-info {
   flex: 1;
   display: flex;
