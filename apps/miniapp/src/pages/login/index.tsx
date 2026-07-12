@@ -28,6 +28,7 @@ export default function LoginPage() {
       const res = await request('/auth/weapp-login', {
         method: 'POST',
         data: { code },
+        auth: false,
       });
       Taro.setStorageSync('token', res.accessToken);
       Taro.setStorageSync('tenantId', String(res.client?.tenantId || 1));

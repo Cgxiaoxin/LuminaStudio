@@ -33,6 +33,17 @@ npm run db:setup
 | 1 | `npm run dev:server` | API：`http://localhost:3000/api` |
 | 2 | `npm run dev:admin` | 管理后台：`http://localhost:5173` |
 | 3（可选） | `npm run dev:miniapp` | 微信小程序（见下方说明） |
+## 小程序启动相关问题：
+删除dist和node_modules 目录之后，需要：
+1. 
+cd D:\data\code_project\LuminaStudio
+npm install
+2. 若出现 EPERM 无法写入 D:\software\Work_software\nodejs\npm-cache，可用项目内缓存：
+npm install --cache .npm-cache
+3. 
+安装完成后，启动：npm run dev:miniapp
+
+
 
 店主：admin / admin123（OWNER，后台全功能）
 教练：coach1 / coach123（COACH，已绑定主店，可登录后台）

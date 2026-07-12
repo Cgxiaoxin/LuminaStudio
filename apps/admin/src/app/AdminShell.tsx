@@ -1,10 +1,12 @@
 ﻿import type { PropsWithChildren } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Button } from "antd";
 import { LogOut } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useI18n } from "../i18n";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
+import { fetchTenantBranding, resolveAssetUrl } from "../services/upload";
 
 type ShellPage = {
   path: string;
@@ -20,6 +22,25 @@ export function AdminShell({ children, pages }: AdminShellProps) {
   const navigate = useNavigate();
   const { t } = useI18n();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const tenantId = localStorage.getItem("tenantId") || "1";
+  const [logoUrl, setLogoUrl] = useState<string>();
+  const [brandTitle, setBrandTitle] = useState(t("common.brand"));
+
+  const loadBranding = () => {
+    fetchTenantBranding(tenantId)
+      .then((data) => {
+        setLogoUrl(resolveAssetUrl(data.logoUrl));
+        setBrandTitle(data.brandName || data.name || t("common.brand"));
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    loadBranding();
+    const onUpdate = () => loadBranding();
+    window.addEventListener("tenant-branding-updated", onUpdate);
+    return () => window.removeEventListener("tenant-branding-updated", onUpdate);
+  }, [tenantId, t]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -32,9 +53,13 @@ export function AdminShell({ children, pages }: AdminShellProps) {
     <div className="admin-shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">LS</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="brand-mark-img" />
+          ) : (
+            <span className="brand-mark">LS</span>
+          )}
           <div className="brand-text">
-            <strong>{t("common.brand")}</strong>
+            <strong>{brandTitle}</strong>
             <span>{t("shell.operations")}</span>
           </div>
         </div>

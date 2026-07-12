@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Text, View, Picker } from '@tarojs/components';
-import Taro, { useShareAppMessage, usePullDownRefresh } from '@tarojs/taro';
+import Taro, { useShareAppMessage } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
 import { StoreInfoBar } from '../../components/StoreInfoBar';
@@ -42,10 +42,6 @@ export default function VenuePage() {
     loadStores().catch(() => {});
   }, []);
 
-  usePullDownRefresh(() => {
-    loadStores().finally(() => Taro.stopPullDownRefresh());
-  });
-
   const storeRange = stores.map(s => s.name);
   const hours = formatBusinessHours(currentStore?.businessHours) || t('venue.defaultHours');
 
@@ -63,27 +59,24 @@ export default function VenuePage() {
         <SkeletonState rows={2} />
       ) : (
         <>
-          <View className="venue-hero">
-            <View className="venue-hero__overlay" />
-            <View className="venue-card">
-              <View className="venue-card__head">
-                <View className="venue-card__title-wrap">
-                  <Text className="venue-card__name">{currentStore?.name || t('home.selectStore')}</Text>
-                  <Text className="venue-card__hours">{hours}</Text>
-                </View>
-                <Picker
-                  mode="selector"
-                  range={storeRange}
-                  value={Math.max(0, stores.findIndex(s => String(s.id) === selectedStoreId))}
-                  onChange={(e) => setSelectedStoreId(String(stores[e.detail.value]?.id || selectedStoreId))}
-                >
-                  <View className="venue-switch">
-                    <Text>{t('venue.switch')}</Text>
-                  </View>
-                </Picker>
+          <View className="venue-card">
+            <View className="venue-card__head">
+              <View className="venue-card__title-wrap">
+                <Text className="venue-card__name">{currentStore?.name || t('home.selectStore')}</Text>
+                <Text className="venue-card__hours">{hours}</Text>
               </View>
-              <StoreInfoBar store={currentStore} variant="inline" />
+              <Picker
+                mode="selector"
+                range={storeRange}
+                value={Math.max(0, stores.findIndex(s => String(s.id) === selectedStoreId))}
+                onChange={(e) => setSelectedStoreId(String(stores[e.detail.value]?.id || selectedStoreId))}
+              >
+                <View className="venue-switch">
+                  <Text>{t('venue.switch')}</Text>
+                </View>
+              </Picker>
             </View>
+            <StoreInfoBar store={currentStore} variant="inline" />
           </View>
 
           <View className="venue-section">

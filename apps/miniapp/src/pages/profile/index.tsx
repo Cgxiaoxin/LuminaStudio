@@ -43,7 +43,7 @@ export default function ProfilePage() {
   const handleLogin = async () => {
     try {
       const { code } = await Taro.login();
-      const res = await request('/auth/weapp-login', { method: 'POST', data: { code } });
+      const res = await request('/auth/weapp-login', { method: 'POST', data: { code }, auth: false });
       Taro.setStorageSync('token', res.accessToken);
       Taro.setStorageSync('tenantId', String(res.client?.tenantId || 1));
       showToast({ title: t('login.success'), icon: 'success' });

@@ -1,3 +1,13 @@
+// ── 底部 Tab 图标尺寸（手动调整入口）────────────────────────────
+// 改 $tab-icon-size  可整体放大/缩小四个图标（当前 48px = 在 38px 基础上再 +25%）
+// 改 $tab-icon-stroke 可调整线条粗细
+// 改 $tab-bar-height  图标很大时，可同步加高底栏避免拥挤
+// 改 $tab-bar-padding-top  上边界留白（数值越大，图标越靠下）
+$tab-icon-size: 48px;
+$tab-icon-stroke: 4px;
+$tab-bar-height: 76px;
+$tab-bar-padding-top: 10px;
+
 .custom-tab-bar {
   position: fixed;
   left: 0;
@@ -5,7 +15,7 @@
   bottom: 0;
   z-index: 999;
   display: flex;
-  height: 68px;
+  height: $tab-bar-height;
   padding-bottom: env(safe-area-inset-bottom);
   background: #fff;
   border-top: 1px solid rgba(23, 33, 28, 0.08);
@@ -16,10 +26,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
   color: #6f776f;
-  padding-top: 6px;
+  padding-top: $tab-bar-padding-top;
+  padding-bottom: 4px;
 }
 
 .custom-tab-bar__item.is-active {
@@ -33,94 +44,94 @@
 }
 
 .custom-tab-bar__icon {
-  width: 30px;
-  height: 30px;
+  width: $tab-icon-size;
+  height: $tab-icon-size;
   position: relative;
 }
 
 .custom-tab-bar__icon--home::before {
   content: '';
   position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: 3px;
-  height: 16px;
-  border: 2.5px solid currentColor;
+  left: 6px;
+  right: 6px;
+  bottom: 5px;
+  height: 25px;
+  border: $tab-icon-stroke solid currentColor;
   border-top: none;
-  border-radius: 0 0 4px 4px;
+  border-radius: 0 0 6px 6px;
 }
 
 .custom-tab-bar__icon--home::after {
   content: '';
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 50%;
-  width: 16px;
-  height: 16px;
-  margin-left: -10px;
-  border: 2.5px solid currentColor;
+  width: 25px;
+  height: 25px;
+  margin-left: -15px;
+  border: $tab-icon-stroke solid currentColor;
   border-bottom: none;
-  border-radius: 4px 4px 0 0;
+  border-radius: 6px 6px 0 0;
   transform: rotate(45deg);
 }
 
 .custom-tab-bar__icon--classes::before {
   content: '';
   position: absolute;
-  inset: 4px 5px;
-  border: 2.5px solid currentColor;
-  border-radius: 4px;
+  inset: 6px 8px;
+  border: $tab-icon-stroke solid currentColor;
+  border-radius: 6px;
 }
 
 .custom-tab-bar__icon--classes::after {
   content: '';
   position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  height: 2.5px;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  height: $tab-icon-stroke;
   background: currentColor;
-  box-shadow: 0 7px 0 currentColor;
+  box-shadow: 0 11px 0 currentColor;
 }
 
 .custom-tab-bar__icon--bookings::before {
   content: '';
   position: absolute;
-  inset: 4px 6px;
-  border: 2.5px solid currentColor;
-  border-radius: 4px;
+  inset: 6px 9px;
+  border: $tab-icon-stroke solid currentColor;
+  border-radius: 6px;
 }
 
 .custom-tab-bar__icon--bookings::after {
   content: '';
   position: absolute;
-  top: 2px;
-  left: 12px;
-  width: 5px;
-  height: 5px;
+  top: 3px;
+  left: 19px;
+  width: 8px;
+  height: 8px;
   background: currentColor;
   border-radius: 50%;
-  box-shadow: 8px 0 0 currentColor;
+  box-shadow: 13px 0 0 currentColor;
 }
 
 .custom-tab-bar__icon--venue::before {
   content: '';
   position: absolute;
-  left: 5px;
-  right: 5px;
-  bottom: 4px;
-  height: 15px;
-  border: 2.5px solid currentColor;
-  border-radius: 3px;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  height: 24px;
+  border: $tab-icon-stroke solid currentColor;
+  border-radius: 5px;
 }
 
 .custom-tab-bar__icon--venue::after {
   content: '';
   position: absolute;
-  top: 3px;
+  top: 5px;
   left: 50%;
-  margin-left: -9px;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-bottom: 10px solid currentColor;
+  margin-left: -14px;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 15px solid currentColor;
 }

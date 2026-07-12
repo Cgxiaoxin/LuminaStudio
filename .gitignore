@@ -62,6 +62,7 @@ tsconfig.tsbuildinfo
 # Misc
 .cache/
 .npm-cache/
+uploads/
 .parcel-cache/
 .eslintcache
 .turbo/

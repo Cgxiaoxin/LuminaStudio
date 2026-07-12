@@ -1,34 +1,17 @@
-@import '../../styles/tokens.scss';
+@use '../../styles/tokens.scss' as *;
 
 .venue-page {
   min-height: 100vh;
   background: $color-background;
-  padding-bottom: 48rpx;
-}
-
-.venue-hero {
-  position: relative;
-  height: 360rpx;
-  background: linear-gradient(160deg, #dfe8e0 0%, #c5d4c8 50%, #eef4ea 100%);
-  margin-bottom: 24rpx;
-}
-
-.venue-hero__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(246, 247, 244, 0.9) 100%);
+  padding: 24rpx 32rpx 48rpx;
+  box-sizing: border-box;
 }
 
 .venue-card {
-  position: absolute;
-  left: 32rpx;
-  right: 32rpx;
-  bottom: -80rpx;
   background: $color-surface;
   border-radius: 20rpx;
   padding: 28rpx;
   box-shadow: $shadow-panel-hover;
-  z-index: 1;
 }
 
 .venue-card__head {
@@ -72,7 +55,7 @@
 }
 
 .venue-section {
-  padding: 100rpx 32rpx 0;
+  padding: 32rpx 0 0;
 }
 
 .venue-section__title {
@@ -116,7 +99,7 @@
 }
 
 .venue-menu {
-  margin: 32rpx;
+  margin-top: 32rpx;
   background: $color-surface;
   border-radius: $radius-panel;
   overflow: hidden;

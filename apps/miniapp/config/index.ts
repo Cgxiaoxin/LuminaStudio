@@ -1,4 +1,4 @@
-﻿import { defineConfig } from "@tarojs/cli";
+import { defineConfig } from "@tarojs/cli";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -42,6 +42,9 @@ export default defineConfig(async (merge) => {
     framework: "react",
     compiler: "webpack5",
     mini: {
+      miniCssExtractPluginOption: {
+        ignoreOrder: true,
+      },
       projectConfig: {
         appid: "wx6ffa1da368b4ddb5",
         projectname: "LuminaStudio",

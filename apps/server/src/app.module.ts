@@ -19,6 +19,7 @@ import { PaymentsModule } from "./modules/payments/payments.module";
 import { LedgerModule } from "./modules/ledger/ledger.module";
 import { ReportsModule } from "./modules/reports/reports.module";
 import { MarketingModule } from "./modules/marketing/marketing.module";
+import { UploadModule } from "./modules/upload/upload.module";
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { MarketingModule } from "./modules/marketing/marketing.module";
     LedgerModule,
     ReportsModule,
     MarketingModule,
+    UploadModule,
   ],
   controllers: [HealthController],
   providers: [

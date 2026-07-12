@@ -1,4 +1,4 @@
-@import '../../styles/tokens.scss';
+@use '../../styles/tokens.scss' as *;
 
 .month-calendar {
   margin-top: 16rpx;

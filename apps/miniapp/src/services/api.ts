@@ -67,9 +67,20 @@ export function request<T = any>(url: string, options?: Taro.request.Option & { 
 }
 
 function isProtectedPath(url: string, method?: string) {
+  const pathOnly = url.split('?')[0];
   const upperMethod = (method || 'GET').toUpperCase();
+
+  const publicRoutes: Array<{ methods: string[]; pattern: RegExp }> = [
+    { methods: ['POST'], pattern: /^\/auth\/(weapp-login|admin-login)$/ },
+    { methods: ['GET'], pattern: /^\/auth\/(agreement|wechat-config)$/ },
+  ];
+
+  if (publicRoutes.some((r) => r.methods.includes(upperMethod) && r.pattern.test(pathOnly))) {
+    return false;
+  }
+
   if (upperMethod === 'GET' || upperMethod === 'HEAD') {
-    return /^\/(bookings|memberships|orders|marketing\/my-coupons|auth\/(profile|client-stats|bind-phone))/.test(url);
+    return /^\/(bookings|memberships|orders|marketing\/my-coupons|auth\/(me|me\/stats))/.test(pathOnly);
   }
   return true;
 }

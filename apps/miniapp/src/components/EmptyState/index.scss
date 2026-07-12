@@ -1,4 +1,4 @@
-@import '../../styles/tokens.scss';
+@use '../../styles/tokens.scss' as *;
 
 .empty-state {
   display: flex;

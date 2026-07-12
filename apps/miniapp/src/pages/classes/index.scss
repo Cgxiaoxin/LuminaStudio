@@ -1,4 +1,4 @@
-@import '../../styles/tokens.scss';
+@use '../../styles/tokens.scss' as *;
 
 .classes-page {
   padding: $page-padding;

@@ -41,6 +41,46 @@ body {
   flex-shrink: 0;
 }
 
+.brand-mark-img {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.logo-upload-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.logo-preview-box {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  background: #f0f2f5;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo-placeholder {
+  font-weight: 800;
+  color: #8c8c8c;
+}
+
+.logo-upload-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-hint {
+  font-size: 12px;
+}
+
 .brand-text {
   display: flex;
   flex-direction: column;

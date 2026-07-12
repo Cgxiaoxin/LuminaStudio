@@ -125,7 +125,7 @@ export type TranslationMessages = {
     finance: { title: string; orders: string; ledger: string; orderNo: string; paidAt: string; totalLedger: string; ordersCount: string; paid: string; remark: string; refund: string; refundConfirm: string; refundSuccess: string };
     reports: { title: string; overview: string; services: string; upcoming: string };
     marketing: { title: string; add: string; edit: string; couponName: string; discount: string; quota: string; disabled: string; deleteConfirm: string; validPeriod: string; discountValue: string; perUserLimit: string; totalQuota: string; issueCoupon: string; issueSuccess: string; selectClient: string; selectTemplate: string };
-    settings: { title: string; subtitle: string; studioName: string; tenantCode: string; brandName: string; logoUrl: string; contactPhone: string; agreementText: string; saved: string };
+    settings: { title: string; subtitle: string; studioName: string; tenantCode: string; brandName: string; logoUrl: string; logoUpload: string; uploadLogo: string; uploadHint: string; uploadSuccess: string; uploadFailed: string; contactPhone: string; agreementText: string; saved: string };
   };
 };
 
