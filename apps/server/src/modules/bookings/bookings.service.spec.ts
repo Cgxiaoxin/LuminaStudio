@@ -9,7 +9,7 @@ describe('BookingsService', () => {
   let prisma: {
     $transaction: jest.Mock;
     schedule: { findUnique: jest.Mock; updateMany: jest.Mock; update: jest.Mock };
-    booking: { create: jest.Mock };
+    booking: { create: jest.Mock; findFirst: jest.Mock };
     membership: { findFirst: jest.Mock; update: jest.Mock };
     order: { create: jest.Mock };
   };
@@ -22,7 +22,7 @@ describe('BookingsService', () => {
         updateMany: jest.fn(),
         update: jest.fn(),
       },
-      booking: { create: jest.fn() },
+      booking: { create: jest.fn(), findFirst: jest.fn().mockResolvedValue(null) },
       membership: { findFirst: jest.fn(), update: jest.fn() },
       order: { create: jest.fn() },
     };
@@ -96,6 +96,86 @@ describe('BookingsService', () => {
     expect(result.order).toEqual({ id: 20, status: 'PENDING' });
   });
 
+  it('rejects duplicate booking for the same client and schedule', async () => {
+    prisma.schedule.findUnique.mockResolvedValue({
+      id: 1,
+      tenantId: 1,
+      storeId: 1,
+      serviceId: 1,
+      capacity: 4,
+      bookedCount: 1,
+      status: 'OPEN',
+      service: { id: 1, price: 0, name: 'Free Class' },
+    });
+    prisma.booking.findFirst.mockResolvedValue({ id: 99 });
+
+    await expect(
+      service.create({ scheduleId: 1, clientId: 1 }, 1),
+    ).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.schedule.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('rejects expired duration membership', async () => {
+    prisma.schedule.findUnique.mockResolvedValue({
+      id: 1,
+      tenantId: 1,
+      storeId: 1,
+      serviceId: 1,
+      capacity: 4,
+      bookedCount: 0,
+      status: 'OPEN',
+      service: { id: 1, price: 100, name: 'Paid Class' },
+    });
+    prisma.schedule.updateMany.mockResolvedValue({ count: 1 });
+    prisma.membership.findFirst.mockResolvedValue({
+      id: 8,
+      type: 'DURATION_BASED',
+      status: 'ACTIVE',
+      expiredAt: new Date('2020-01-01'),
+    });
+
+    await expect(
+      service.create({ scheduleId: 1, clientId: 1, membershipId: 8 }, 1),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('restores stored-value balance when canceling a membership booking', async () => {
+    const findFirst = jest.fn().mockResolvedValue({
+      id: 12,
+      status: 'CONFIRMED',
+      usedMembershipId: 8,
+      scheduleId: 3,
+      service: { price: 120 },
+    });
+    const membershipFindUnique = jest.fn().mockResolvedValue({ id: 8, type: 'STORED_VALUE' });
+    const membershipUpdate = jest.fn();
+    const scheduleUpdate = jest.fn().mockResolvedValue({});
+    const scheduleFindUnique = jest.fn().mockResolvedValue({ status: 'OPEN' });
+    const orderUpdateMany = jest.fn();
+    const bookingUpdate = jest.fn().mockResolvedValue({ id: 12, status: 'CANCELED' });
+    const tx = {
+      membership: { findUnique: membershipFindUnique, update: membershipUpdate },
+      schedule: { update: scheduleUpdate, findUnique: scheduleFindUnique },
+      order: { updateMany: orderUpdateMany },
+      booking: { update: bookingUpdate },
+    };
+
+    (service as any).prisma = {
+      booking: { findFirst },
+      $transaction: jest.fn(async (cb: any) => cb(tx)),
+    };
+
+    await service.cancel(12, 1);
+
+    expect(membershipUpdate).toHaveBeenCalledWith({
+      where: { id: 8 },
+      data: { balanceAmount: { increment: 120 } },
+    });
+    expect(bookingUpdate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ status: 'CANCELED' }),
+    }));
+  });
+
   it('filters bookings by comma-separated statuses', async () => {
     const findMany = jest.fn().mockResolvedValue([]);
     const count = jest.fn().mockResolvedValue(0);
@@ -117,6 +197,8 @@ describe('BookingsService', () => {
 
 describe('BookingsService concurrency', () => {
   it('only allows one booking when capacity is 1', async () => {
+    if (!process.env.DATABASE_URL) return;
+
     const { PrismaClient } = await import('@prisma/client');
     const db = new PrismaClient();
     const membershipsService = new MembershipsService(db as any);
@@ -131,8 +213,11 @@ describe('BookingsService concurrency', () => {
       return;
     }
 
-    const client = await db.client.findFirst({ where: { tenantId: schedule.tenantId } });
-    if (!client) {
+    const clients = await db.client.findMany({
+      where: { tenantId: schedule.tenantId },
+      take: 2,
+    });
+    if (clients.length < 2) {
       await db.$disconnect();
       return;
     }
@@ -144,8 +229,8 @@ describe('BookingsService concurrency', () => {
     await db.booking.deleteMany({ where: { scheduleId: schedule.id } });
 
     const results = await Promise.allSettled([
-      bookingsService.create({ scheduleId: schedule.id, clientId: client.id }, schedule.tenantId),
-      bookingsService.create({ scheduleId: schedule.id, clientId: client.id }, schedule.tenantId),
+      bookingsService.create({ scheduleId: schedule.id, clientId: clients[0].id }, schedule.tenantId),
+      bookingsService.create({ scheduleId: schedule.id, clientId: clients[1].id }, schedule.tenantId),
     ]);
 
     const fulfilled = results.filter((r) => r.status === 'fulfilled');

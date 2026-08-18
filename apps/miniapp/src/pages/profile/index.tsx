@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { Text, View, Button } from '@tarojs/components';
+import { Text, View, Button, Image } from '@tarojs/components';
 import Taro, { showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { MembershipCardVisual } from '../../components/MembershipCardVisual';
@@ -106,7 +106,13 @@ export default function ProfilePage() {
       ) : (
         <>
           <View className="user-card">
-            <View className="avatar">{user.avatarUrl ? '' : user.nickname?.[0] || '?'}</View>
+            <View className="avatar">
+              {user.avatarUrl ? (
+                <Image className="avatar-img" src={user.avatarUrl} mode="aspectFill" />
+              ) : (
+                <Text>{user.nickname?.[0] || '?'}</Text>
+              )}
+            </View>
             <View className="user-info">
               <Text className="user-name">{user.nickname || t('common.user')}</Text>
               <Text className="user-phone">{user.phone || t('profile.bindPhone')}</Text>

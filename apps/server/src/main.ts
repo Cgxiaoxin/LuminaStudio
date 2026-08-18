@@ -6,8 +6,10 @@ import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 import { AppModule } from "./app.module";
 import { AllExceptionsFilter } from "./common/filters/http-exception.filter";
+import { getJwtSecret } from "./common/utils/jwt-secret";
 
 async function bootstrap() {
+  getJwtSecret();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const port = Number(process.env.PORT || 3000);
 

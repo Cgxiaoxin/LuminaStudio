@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Card, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, message, Popconfirm } from 'antd';
+import { Button, Card, Table, Tag, Modal, Form, Input, InputNumber, DatePicker, Select, message, Popconfirm } from 'antd';
 import { Plus, Trash2 } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
@@ -26,6 +26,9 @@ const statusColors: Record<string, string> = { OPEN: 'green', FULL: 'orange', CA
 export default function SchedulesPage() {
   const { t } = useI18n();
   const [data, setData] = useState<Schedule[]>([]);
+  const [stores, setStores] = useState<{ id: number; name: string }[]>([]);
+  const [services, setServices] = useState<{ id: number; name: string }[]>([]);
+  const [coaches, setCoaches] = useState<{ id: number; displayName: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [form] = Form.useForm();
@@ -36,12 +39,27 @@ export default function SchedulesPage() {
       const res = await api.get('/schedules');
       setData(res.data.data || res.data);
     } catch {
+      message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetch() }, []);
+  const loadOptions = () => {
+    Promise.all([
+      api.get('/stores', { params: { limit: 100 } }),
+      api.get('/services', { params: { limit: 100 } }),
+      api.get('/coaches', { params: { limit: 100 } }),
+    ]).then(([storeRes, serviceRes, coachRes]) => {
+      setStores(storeRes.data.data || storeRes.data || []);
+      setServices(serviceRes.data.data || serviceRes.data || []);
+      setCoaches(coachRes.data.data || coachRes.data || []);
+    }).catch(() => {
+      message.error(t('common.loadFailed'));
+    });
+  };
+
+  useEffect(() => { fetch(); loadOptions(); }, []);
 
   const handleCreate = async () => {
     const values = await form.validateFields();
@@ -101,14 +119,14 @@ export default function SchedulesPage() {
       </Card>
       <Modal title={t('pages.schedules.add')} open={modalOpen} onOk={handleCreate} onCancel={() => setModalOpen(false)} width={520} okText={t('common.confirm')} cancelText={t('common.cancel')}>
         <Form form={form} layout="vertical">
-          <Form.Item name="storeId" label={t('common.storeId')} rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
+          <Form.Item name="storeId" label={t('common.store')} rules={[{ required: true }]}>
+            <Select options={stores.map((store) => ({ value: store.id, label: store.name }))} />
           </Form.Item>
-          <Form.Item name="serviceId" label={t('common.serviceId')} rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
+          <Form.Item name="serviceId" label={t('common.service')} rules={[{ required: true }]}>
+            <Select options={services.map((service) => ({ value: service.id, label: service.name }))} />
           </Form.Item>
-          <Form.Item name="coachId" label={t('common.coachId')} rules={[{ required: true }]}>
-            <InputNumber min={1} style={{ width: '100%' }} />
+          <Form.Item name="coachId" label={t('common.coach')} rules={[{ required: true }]}>
+            <Select options={coaches.map((coach) => ({ value: coach.id, label: coach.displayName }))} />
           </Form.Item>
           <Form.Item name="timeRange" label={t('pages.schedules.timeRange')} rules={[{ required: true }]}>
             <RangePicker showTime style={{ width: '100%' }} />

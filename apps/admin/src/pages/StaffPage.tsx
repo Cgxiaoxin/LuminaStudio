@@ -33,7 +33,7 @@ export default function StaffPage() {
       const res = await api.get('/admin-users');
       setData(res.data.data || res.data);
     } catch {
-      // Mock fallback
+      message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
     }

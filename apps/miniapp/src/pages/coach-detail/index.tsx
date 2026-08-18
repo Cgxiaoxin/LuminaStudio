@@ -1,4 +1,4 @@
-import { Text, View } from '@tarojs/components';
+import { Image, Text, View } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useFetch } from '../../hooks/useFetch';
@@ -22,7 +22,13 @@ export default function CoachDetailPage() {
   return (
     <View className="coach-detail">
       <View className="coach-detail__hero">
-        <View className="coach-detail__avatar"><Text>{coach.displayName?.[0] || 'C'}</Text></View>
+        <View className="coach-detail__avatar">
+          {coach.avatarUrl ? (
+            <Image className="coach-detail__avatar-img" src={coach.avatarUrl} mode="aspectFill" />
+          ) : (
+            <Text>{coach.displayName?.[0] || 'C'}</Text>
+          )}
+        </View>
         <Text className="coach-detail__name">{coach.displayName}</Text>
       </View>
       <View className="coach-detail__card">

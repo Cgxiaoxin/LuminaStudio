@@ -66,6 +66,8 @@ const messages: TranslationMessages = {
     expiryDate: '到期日期',
     createdAt: '创建时间',
     search: '搜索',
+    store: '门店',
+    dateRange: '日期范围',
   },
   shell: {
     operations: '运营管理',
@@ -218,6 +220,8 @@ const messages: TranslationMessages = {
       title: '预约管理',
       bookingNo: '预约编号',
       filterStatus: '按状态筛选',
+      filterStore: '按门店筛选',
+      filterDate: '按日期筛选',
       checkIn: '核销',
       checkInSuccess: '核销成功',
       checkInFailed: '核销失败',

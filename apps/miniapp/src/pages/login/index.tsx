@@ -1,18 +1,40 @@
 import { useState } from 'react';
 import { View, Text, Button } from '@tarojs/components';
-import Taro, { useLoad } from '@tarojs/taro';
+import Taro, { useLoad, useRouter } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { apiBaseUrl } from '../../services/config';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
+const TAB_PAGES = new Set([
+  '/pages/home/index',
+  '/pages/classes/index',
+  '/pages/bookings/index',
+  '/pages/venue/index',
+]);
+
+function goAfterLogin(redirect?: string) {
+  const target = redirect ? decodeURIComponent(redirect) : '/pages/home/index';
+  if (TAB_PAGES.has(target.split('?')[0])) {
+    Taro.switchTab({ url: target.split('?')[0] });
+    return;
+  }
+  if (target.startsWith('/pages/')) {
+    Taro.redirectTo({ url: target });
+    return;
+  }
+  Taro.switchTab({ url: '/pages/home/index' });
+}
+
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const isDev = process.env.NODE_ENV !== 'production';
 
   useLoad(() => {
     const token = Taro.getStorageSync('token');
     if (token) {
-      Taro.switchTab({ url: '/pages/home/index' });
+      goAfterLogin(router.params.redirect);
     }
   });
 
@@ -33,7 +55,7 @@ export default function LoginPage() {
       Taro.setStorageSync('token', res.accessToken);
       Taro.setStorageSync('tenantId', String(res.client?.tenantId || 1));
       Taro.showToast({ title: t('login.success'), icon: 'success' });
-      setTimeout(() => Taro.switchTab({ url: '/pages/home/index' }), 500);
+      setTimeout(() => goAfterLogin(router.params.redirect), 500);
     } catch (err: any) {
       Taro.showToast({ title: err.message || t('errors.loginFailed'), icon: 'none' });
     } finally {
@@ -46,9 +68,12 @@ export default function LoginPage() {
       <View className="login-card">
         <Text className="brand">{t('common.brand')}</Text>
         <Text className="subtitle">{t('login.subtitle')}</Text>
-        <Text className="api-hint">API: {apiBaseUrl}</Text>
+        {isDev ? <Text className="api-hint">API: {apiBaseUrl}</Text> : null}
         <Button className="login-btn" loading={loading} onClick={handleLogin}>
           {t('login.submit')}
+        </Button>
+        <Button className="browse-btn" onClick={() => Taro.switchTab({ url: '/pages/home/index' })}>
+          {t('login.browseFirst')}
         </Button>
       </View>
     </View>

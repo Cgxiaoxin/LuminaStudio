@@ -1,8 +1,8 @@
-import { Controller, Post, Body, Param, Get, Query, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Req, ParseIntPipe } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { RequestWithUser } from '../../common/types/request';
-import { Public, Roles } from '../auth/auth.decorator';
+import { Roles } from '../auth/auth.decorator';
 
 @Controller('payments')
 export class PaymentsController {
@@ -13,15 +13,19 @@ export class PaymentsController {
     return this.paymentsService.createPayment(dto.orderId, dto.channel, req.user.tenantId, req.user);
   }
 
-  @Public()
   @Post('notify/:id')
   async handleNotify(
     @Param('id', ParseIntPipe) id: number,
     @Body() body: { transactionId: string; success: boolean },
-    @Req() req: any,
+    @Req() req: RequestWithUser,
   ) {
-    const tenantId = Number(req.headers['x-tenant-id']) || 1;
-    return this.paymentsService.handleNotify(id, body.transactionId, body.success, tenantId);
+    return this.paymentsService.handleNotify(
+      id,
+      body.transactionId,
+      body.success,
+      req.user.tenantId,
+      req.user,
+    );
   }
 
   @Get('order/:orderId')

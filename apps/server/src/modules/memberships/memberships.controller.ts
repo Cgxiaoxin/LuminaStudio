@@ -31,7 +31,8 @@ export class MembershipsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.membershipsService.findOne(id, req.user.tenantId);
+    const clientId = req.user.type === 'client' ? req.user.id : undefined;
+    return this.membershipsService.findOne(id, req.user.tenantId, clientId);
   }
 
   @Get(':id/usage')

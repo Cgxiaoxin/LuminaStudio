@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Card, Col, Row, Statistic, Table, Tag } from 'antd';
+import { Card, Col, Row, Statistic, Table, Tag, message } from 'antd';
 import { CalendarDays, CheckCircle, CreditCard, Users } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
@@ -14,9 +14,11 @@ export default function DashboardPage() {
   const { t } = useI18n();
   const [stats, setStats] = useState({ todayBookings: 0, checkins: 0, revenue: 0, activeClients: 0 });
   const [recentBookings, setRecentBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const today = dayjs().format('YYYY-MM-DD');
         const [dashRes, bookingRes] = await Promise.all([
@@ -32,11 +34,13 @@ export default function DashboardPage() {
         });
         setRecentBookings(bookingRes.data.data || []);
       } catch {
-        // ignore
+        message.error(t('common.loadFailed'));
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [t]);
 
   const columns = useMemo(() => [
     { title: t('common.client'), key: 'client', render: (_: any, r: any) => r.client?.nickname || r.client?.phone || '-' },
@@ -70,7 +74,7 @@ export default function DashboardPage() {
         ))}
       </Row>
       <Card title={t('pages.dashboard.recentBookings')} bordered={false} style={{ marginTop: 16 }}>
-        <Table columns={columns} dataSource={recentBookings} rowKey="id" pagination={false} size="small" />
+        <Table columns={columns} dataSource={recentBookings} rowKey="id" pagination={false} size="small" loading={loading} />
       </Card>
     </section>
   );

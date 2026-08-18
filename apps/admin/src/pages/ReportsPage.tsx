@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic } from 'antd';
+import { Card, Row, Col, Statistic, message } from 'antd';
 import { api } from '../services/api';
 import { useI18n } from '../i18n';
 
@@ -8,8 +8,10 @@ export default function ReportsPage() {
   const [dashboard, setDashboard] = useState<any>({});
 
   useEffect(() => {
-    api.get('/reports/dashboard').then(res => setDashboard(res.data || {})).catch(() => {});
-  }, []);
+    api.get('/reports/dashboard')
+      .then(res => setDashboard(res.data || {}))
+      .catch(() => message.error(t('common.loadFailed')));
+  }, [t]);
 
   const stats = [
     { title: t('pages.dashboard.todayBookings'), value: dashboard.todayBookings },

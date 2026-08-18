@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Text, View, Button } from '@tarojs/components';
 import Taro, { useRouter, showToast } from '@tarojs/taro';
 import { request } from '../../services/api';
 import { payOrder, isPaymentCanceled } from '../../services/payment';
+import { ErrorState } from '../../components/ErrorState';
 import { t } from '../../i18n/messages';
 import './index.scss';
 
@@ -13,17 +14,43 @@ export default function BookingConfirmPage() {
   const [memberships, setMemberships] = useState<any[]>([]);
   const [selectedMembership, setSelectedMembership] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!scheduleId) return;
-    request(`/schedules/${scheduleId}`).then(setSchedule).catch(() => {});
-    request('/memberships?status=ACTIVE').then((res: any) => {
-      setMemberships(res.data || []);
-    }).catch(() => {});
+  const load = useCallback(() => {
+    if (!Taro.getStorageSync('token')) {
+      const redirect = encodeURIComponent(`/pages/booking-confirm/index?scheduleId=${scheduleId || ''}`);
+      Taro.redirectTo({ url: `/pages/login/index?redirect=${redirect}` });
+      return;
+    }
+    if (!scheduleId) {
+      setError(t('errors.loadFailed'));
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      request(`/schedules/${scheduleId}`),
+      request('/memberships?status=ACTIVE').catch(() => ({ data: [] })),
+    ]).then(([scheduleRes, membershipRes]: any[]) => {
+      setSchedule(scheduleRes);
+      setMemberships(membershipRes.data || []);
+    }).catch((err: any) => {
+      setSchedule(null);
+      setError(err?.message || t('errors.loadFailed'));
+    }).finally(() => setLoading(false));
   }, [scheduleId]);
 
+  useEffect(() => { load(); }, [load]);
+
   const handleSubmit = async () => {
-    if (submitting) return;
+    if (submitting || !schedule) return;
+    const spotsLeft = schedule.capacity - schedule.bookedCount;
+    if (spotsLeft <= 0 || schedule.status !== 'OPEN') {
+      showToast({ title: t('classDetail.full'), icon: 'none' });
+      return;
+    }
     setSubmitting(true);
     try {
       const payload: any = { scheduleId, source: 'WECHAT_MINIAPP' };
@@ -44,7 +71,14 @@ export default function BookingConfirmPage() {
     }
   };
 
-  if (!schedule) return <View className="confirm-page"><Text>{t('common.loading')}</Text></View>;
+  if (loading) return <View className="confirm-page"><Text>{t('common.loading')}</Text></View>;
+  if (error || !schedule) {
+    return (
+      <View className="confirm-page">
+        <ErrorState message={error || t('errors.loadFailed')} onRetry={load} />
+      </View>
+    );
+  }
 
   const price = Number(schedule.service?.price || 0);
   const isFree = price === 0;

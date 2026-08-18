@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   PAYMENT_GATEWAY,
@@ -30,7 +30,10 @@ export class PaymentsService {
       throw new BadRequestException('Order is not pending');
     }
 
-    const payment = await this.prisma.payment.create({
+    const existingPending = await this.prisma.payment.findFirst({
+      where: { orderId, tenantId, channel, status: 'PENDING' },
+    });
+    const payment = existingPending ?? await this.prisma.payment.create({
       data: {
         tenantId,
         storeId: order.storeId,
@@ -57,6 +60,7 @@ export class PaymentsService {
     transactionId: string,
     success: boolean,
     tenantId: number,
+    user?: { id: number; type: string },
   ) {
     const payment = await this.prisma.payment.findFirst({
       where: { id: paymentId, tenantId },
@@ -64,6 +68,12 @@ export class PaymentsService {
     });
     if (!payment) {
       throw new NotFoundException('Payment not found');
+    }
+    if (user?.type === 'client' && payment.order.clientId !== user.id) {
+      throw new ForbiddenException('Cannot confirm another client payment');
+    }
+    if (payment.status === 'PAID') {
+      return { success: true };
     }
     if (payment.status !== 'PENDING') {
       throw new BadRequestException('Payment is not pending');
@@ -77,10 +87,28 @@ export class PaymentsService {
     }
 
     return this.prisma.$transaction(async (tx) => {
-      await tx.payment.update({
-        where: { id: paymentId },
+      const claimed = await tx.payment.updateMany({
+        where: { id: paymentId, status: 'PENDING' },
         data: { status: 'PAID', transactionId },
       });
+      if (claimed.count === 0) {
+        return { success: true };
+      }
+
+      let membershipId = payment.order.membershipId;
+      if (
+        payment.order.orderType === 'MEMBERSHIP' &&
+        payment.order.membershipTemplateId &&
+        !membershipId
+      ) {
+        const issued = await this.templatesService.issueFromTemplate(
+          payment.order.membershipTemplateId,
+          payment.order.clientId,
+          tenantId,
+          tx,
+        );
+        membershipId = issued.id;
+      }
 
       await tx.order.update({
         where: { id: payment.orderId },
@@ -89,6 +117,7 @@ export class PaymentsService {
           paidAmount: payment.amount,
           paidAt: new Date(),
           payChannel: payment.channel,
+          ...(membershipId ? { membershipId } : {}),
         },
       });
 
@@ -100,15 +129,6 @@ export class PaymentsService {
             paidAmount: payment.amount,
           },
         });
-      }
-
-      if (payment.order.orderType === 'MEMBERSHIP' && payment.order.membershipTemplateId) {
-        await this.templatesService.issueFromTemplate(
-          payment.order.membershipTemplateId,
-          payment.order.clientId,
-          tenantId,
-          tx,
-        );
       }
 
       await tx.ledgerEntry.create({

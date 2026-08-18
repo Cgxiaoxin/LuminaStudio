@@ -74,6 +74,12 @@
   font-size: 36rpx;
   font-weight: 700;
   border: 3rpx solid rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+}
+
+.avatar-img {
+  width: 96rpx;
+  height: 96rpx;
 }
 
 .user-name {

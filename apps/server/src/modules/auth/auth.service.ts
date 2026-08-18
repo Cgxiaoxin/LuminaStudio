@@ -53,6 +53,7 @@ export class AuthService {
         username: user.username,
         displayName: user.displayName,
         role: user.role,
+        tenantId: user.tenantId,
       },
     };
   }

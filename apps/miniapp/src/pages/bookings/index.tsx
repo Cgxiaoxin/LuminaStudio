@@ -57,6 +57,13 @@ export default function BookingsPage() {
   });
 
   const handleCancel = async (id: number) => {
+    const { confirm } = await Taro.showModal({
+      title: t('common.cancel'),
+      content: t('bookings.cancelConfirm'),
+      confirmText: t('bookings.confirmCancel'),
+      cancelText: t('common.thinkAgain'),
+    });
+    if (!confirm) return;
     try {
       await request(`/bookings/${id}/cancel`, { method: 'PATCH', data: {} });
       showToast({ title: t('bookings.canceled'), icon: 'success' });

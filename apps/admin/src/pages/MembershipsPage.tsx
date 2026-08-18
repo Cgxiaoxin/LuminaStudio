@@ -4,6 +4,7 @@ import { Plus, XCircle } from 'lucide-react';
 import dayjs from 'dayjs';
 import { api } from '../services/api';
 import { useI18n } from '../i18n';
+import { getStoredAdminRole, isOwnerOrAdmin } from '../app/roleAccess';
 
 interface Membership {
   id: number;
@@ -34,6 +35,7 @@ const statusColors: Record<string, string> = { ACTIVE: 'green', EXHAUSTED: 'oran
 
 export default function MembershipsPage() {
   const { t } = useI18n();
+  const canCancelCard = isOwnerOrAdmin(getStoredAdminRole());
   const [data, setData] = useState<Membership[]>([]);
   const [templates, setTemplates] = useState<MembershipTemplate[]>([]);
   const [customers, setCustomers] = useState<CustomerOption[]>([]);
@@ -49,6 +51,7 @@ export default function MembershipsPage() {
       const res = await api.get('/memberships');
       setData(res.data.data || res.data);
     } catch {
+      message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -124,7 +127,7 @@ export default function MembershipsPage() {
     { title: t('common.used'), key: 'used', render: (_: any, r: Membership) => r._count?.bookings ?? 0 },
     {
       title: t('common.actions'), key: 'actions',
-      render: (_: any, record: Membership) => record.status === 'ACTIVE' && (
+      render: (_: any, record: Membership) => record.status === 'ACTIVE' && canCancelCard && (
         <Popconfirm title={t('pages.memberships.cancelConfirm')} onConfirm={() => handleCancel(record.id)}>
           <Button type="link" danger icon={<XCircle size={14} />}>{t('pages.memberships.cancelCard')}</Button>
         </Popconfirm>

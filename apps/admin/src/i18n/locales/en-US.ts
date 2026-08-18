@@ -66,6 +66,8 @@ const messages: TranslationMessages = {
     expiryDate: 'Expiry Date',
     createdAt: 'Created',
     search: 'Search',
+    store: 'Store',
+    dateRange: 'Date range',
   },
   shell: {
     operations: 'Operations',
@@ -218,6 +220,8 @@ const messages: TranslationMessages = {
       title: 'Bookings',
       bookingNo: 'Booking No',
       filterStatus: 'Filter by status',
+      filterStore: 'Filter by store',
+      filterDate: 'Filter by date',
       checkIn: 'Check In',
       checkInSuccess: 'Checked in',
       checkInFailed: 'Check-in failed',

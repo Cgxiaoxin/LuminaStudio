@@ -12,17 +12,19 @@ export class TenantsService {
     return this.prisma.tenant.create({ data: dto });
   }
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedResult<any>> {
+  async findAll(pagination: PaginationDto, tenantId?: number): Promise<PaginatedResult<any>> {
     const { page = 1, limit = 20 } = pagination;
     const skip = (page - 1) * limit;
+    const where = tenantId ? { id: tenantId } : {};
 
     const [data, total] = await Promise.all([
       this.prisma.tenant.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.tenant.count(),
+      this.prisma.tenant.count({ where }),
     ]);
 
     return new PaginatedResult(data, total, page, limit);

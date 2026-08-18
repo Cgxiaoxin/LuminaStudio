@@ -42,7 +42,8 @@ export class BookingsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.bookingsService.findOne(id, req.user.tenantId);
+    const clientId = req.user.type === 'client' ? req.user.id : undefined;
+    return this.bookingsService.findOne(id, req.user.tenantId, clientId);
   }
 
   @Patch(':id/check-in')
@@ -63,7 +64,8 @@ export class BookingsController {
     @Body() dto: CancelBookingDto,
     @Req() req: RequestWithUser,
   ) {
-    return this.bookingsService.cancel(id, req.user.tenantId, dto);
+    const clientId = req.user.type === 'client' ? req.user.id : undefined;
+    return this.bookingsService.cancel(id, req.user.tenantId, dto, clientId);
   }
 
   @Patch(':id/confirm-payment')

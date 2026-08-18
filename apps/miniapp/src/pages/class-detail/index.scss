@@ -67,6 +67,21 @@
   height: 80rpx;
   border-radius: 50%;
   background: #eef4ea;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2e6f57;
+  font-weight: 700;
+}
+
+.coach-avatar-img {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.book-btn.disabled {
+  background: #9aa39a;
 }
 
 .coach-name {

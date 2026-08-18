@@ -35,7 +35,9 @@ export default function MarketingPage() {
     try {
       const res = await api.get('/marketing/templates');
       setData(res.data.data || []);
-    } catch {} finally { setLoading(false) }
+    } catch {
+      message.error(t('common.loadFailed'));
+    } finally { setLoading(false) }
   };
 
   useEffect(() => { fetch() }, []);
@@ -88,7 +90,7 @@ export default function MarketingPage() {
   const columns = [
     { title: t('common.name'), dataIndex: 'name', key: 'name' },
     { title: t('common.type'), dataIndex: 'couponType', key: 'type', render: (type: string) => <Tag>{t(`couponType.${type}`)}</Tag> },
-    { title: t('pages.marketing.discount'), dataIndex: 'discountValue', render: (v: number) => `¥${Number(v).toFixed(2)}` },
+    { title: t('pages.marketing.discount'), dataIndex: 'discountValue', render: (v: number, r: CouponTemplate) => r.couponType === 'PERCENT' ? `${Number(v)}%` : `¥${Number(v).toFixed(2)}` },
     { title: t('common.minSpend'), dataIndex: 'minimumSpend', render: (v: number | null) => v ? `¥${v}` : '-' },
     { title: t('pages.marketing.quota'), dataIndex: 'quota', render: (v: number | null) => v ?? '∞' },
     { title: t('common.perUser'), dataIndex: 'perUserLimit', render: (v: number | null) => v ?? '∞' },
@@ -98,7 +100,14 @@ export default function MarketingPage() {
       title: t('common.actions'), key: 'actions',
       render: (_: any, r: CouponTemplate) => (
         <Space>
-          <Button type="link" icon={<Edit size={14} />} onClick={() => { setEditing(r); form.setFieldsValue(r); setModalOpen(true) }}>{t('common.edit')}</Button>
+          <Button type="link" icon={<Edit size={14} />} onClick={() => {
+            setEditing(r);
+            form.setFieldsValue({
+              ...r,
+              validRange: r.validFrom ? [dayjs(r.validFrom), r.validTo ? dayjs(r.validTo) : dayjs(r.validFrom)] : undefined,
+            });
+            setModalOpen(true);
+          }}>{t('common.edit')}</Button>
           <Popconfirm title={t('pages.marketing.deleteConfirm')} onConfirm={() => handleDelete(r.id)}>
             <Button type="link" danger icon={<Trash2 size={14} />}>{t('common.disable')}</Button>
           </Popconfirm>

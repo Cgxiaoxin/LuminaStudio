@@ -58,9 +58,9 @@ export class MembershipsService {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findOne(id: number, tenantId: number) {
+  async findOne(id: number, tenantId: number, clientId?: number) {
     const membership = await this.prisma.membership.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId, ...(clientId ? { clientId } : {}) },
       include: {
         client: { select: { id: true, nickname: true, phone: true, avatarUrl: true } },
       },

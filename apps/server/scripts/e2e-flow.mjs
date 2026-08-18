@@ -81,6 +81,7 @@ async function main() {
   });
   await api(`/payments/notify/${pay.payment.id}`, {
     method: 'POST',
+    headers: clientHeaders,
     body: JSON.stringify({ transactionId: `e2e_tx_${Date.now()}`, success: true }),
   });
 

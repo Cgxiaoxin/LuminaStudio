@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from 'react';
-import { Button, Card, Table, Tag, Space, Modal, Select, message, Popconfirm } from 'antd';
+import { Button, Card, Table, Tag, Space, Select, DatePicker, message, Popconfirm } from 'antd';
 import { CheckCircle, XCircle } from 'lucide-react';
 import dayjs from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { api } from '../services/api';
 import { useI18n } from '../i18n';
 
@@ -10,6 +11,7 @@ interface Booking {
   bookingNo: string;
   status: string;
   paidAmount: number;
+  storeId?: number;
   client?: { nickname: string; phone: string };
   service?: { name: string };
   schedule?: { startAt: string };
@@ -23,22 +25,38 @@ const statusColors: Record<string, string> = {
 export default function BookingsPage() {
   const { t } = useI18n();
   const [data, setData] = useState<Booking[]>([]);
+  const [stores, setStores] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [storeFilter, setStoreFilter] = useState<number | undefined>();
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
 
   const fetch = async () => {
     setLoading(true);
     try {
-      const params: Record<string, string> = {};
+      const params: Record<string, string | number> = {};
       if (statusFilter) params.status = statusFilter;
+      if (storeFilter) params.storeId = storeFilter;
+      if (dateRange) {
+        params.dateFrom = dateRange[0].startOf('day').toISOString();
+        params.dateTo = dateRange[1].endOf('day').toISOString();
+      }
       const res = await api.get('/bookings', { params });
       setData(res.data.data || res.data);
+    } catch {
+      message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetch(); }, [statusFilter]);
+  useEffect(() => { fetch(); }, [statusFilter, storeFilter, dateRange]);
+
+  useEffect(() => {
+    api.get('/stores', { params: { limit: 100 } })
+      .then((res) => setStores(res.data.data || res.data || []))
+      .catch(() => setStores([]));
+  }, []);
 
   const handleCheckIn = async (id: number) => {
     try {
@@ -101,14 +119,29 @@ export default function BookingsPage() {
           <p className="eyebrow">{t('common.eyebrow')}</p>
           <h1>{t('pages.bookings.title')}</h1>
         </div>
-        <Select
-          allowClear
-          placeholder={t('pages.bookings.filterStatus')}
-          style={{ width: 200 }}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={statusOptions}
-        />
+        <Space wrap>
+          <Select
+            allowClear
+            placeholder={t('pages.bookings.filterStore')}
+            style={{ width: 180 }}
+            value={storeFilter}
+            onChange={setStoreFilter}
+            options={stores.map((store) => ({ value: store.id, label: store.name }))}
+          />
+          <DatePicker.RangePicker
+            value={dateRange}
+            onChange={(range) => setDateRange(range as [Dayjs, Dayjs] | null)}
+            placeholder={[t('pages.bookings.filterDate'), t('common.dateRange')]}
+          />
+          <Select
+            allowClear
+            placeholder={t('pages.bookings.filterStatus')}
+            style={{ width: 180 }}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={statusOptions}
+          />
+        </Space>
       </div>
       <Card bordered={false}>
         <Table columns={columns} dataSource={data} rowKey="id" loading={loading} pagination={{ pageSize: 20 }} />

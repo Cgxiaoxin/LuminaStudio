@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Query, Req, ParseIntPipe, ForbiddenException } from '@nestjs/common';
 import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { Public } from '../auth/auth.decorator';
+import { Public, Roles } from '../auth/auth.decorator';
+import { RequestWithUser } from '../../common/types/request';
 
 @Controller('tenants')
 export class TenantsController {
@@ -16,17 +17,30 @@ export class TenantsController {
   }
 
   @Get()
-  findAll(@Query() pagination: PaginationDto) {
-    return this.tenantsService.findAll(pagination);
+  findAll(@Query() pagination: PaginationDto, @Req() req: RequestWithUser) {
+    return this.tenantsService.findAll(pagination, req.user.tenantId);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
+    this.assertOwnTenant(id, req.user.tenantId);
     return this.tenantsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTenantDto) {
+  @Roles('OWNER', 'ADMIN')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateTenantDto,
+    @Req() req: RequestWithUser,
+  ) {
+    this.assertOwnTenant(id, req.user.tenantId);
     return this.tenantsService.update(id, dto);
+  }
+
+  private assertOwnTenant(id: number, tenantId: number) {
+    if (id !== tenantId) {
+      throw new ForbiddenException('Cannot access another tenant');
+    }
   }
 }

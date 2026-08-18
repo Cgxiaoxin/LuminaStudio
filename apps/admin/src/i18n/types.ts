@@ -66,6 +66,8 @@ export type TranslationMessages = {
     expiryDate: string;
     createdAt: string;
     search: string;
+    store: string;
+    dateRange: string;
   };
   shell: {
     operations: string;
@@ -119,7 +121,7 @@ export type TranslationMessages = {
     staff: { title: string; add: string; edit: string; deleteConfirm: string; displayName: string; bio: string };
     services: { title: string; add: string; edit: string; deleteConfirm: string; durationMin: string; disable: string };
     schedules: { title: string; add: string; canceled: string; spots: string; cancelConfirm: string; timeRange: string };
-    bookings: { title: string; bookingNo: string; filterStatus: string; checkIn: string; checkInSuccess: string; checkInFailed: string; cancelSuccess: string; cancelConfirm: string };
+    bookings: { title: string; bookingNo: string; filterStatus: string; filterStore: string; filterDate: string; checkIn: string; checkInSuccess: string; checkInFailed: string; cancelSuccess: string; cancelConfirm: string };
     memberships: { title: string; add: string; issue: string; issueFromTemplate: string; cancelCard: string; remaining: string; total: string; expiredAt: string; cancelConfirm: string; membershipName: string; totalSessions: string; canceled: string; period: string };
     membershipTemplates: { title: string; subtitle: string; create: string; price: string; balance: string; validDays: string; detail: string };
     finance: { title: string; orders: string; ledger: string; orderNo: string; paidAt: string; totalLedger: string; ordersCount: string; paid: string; remark: string; refund: string; refundConfirm: string; refundSuccess: string };

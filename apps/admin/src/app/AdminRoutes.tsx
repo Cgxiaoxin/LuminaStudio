@@ -15,6 +15,7 @@ import MarketingPage from "../pages/MarketingPage";
 import SettingsPage from "../pages/SettingsPage";
 import CustomersPage from "../pages/CustomersPage";
 import { useI18n } from "../i18n";
+import { canAccessPage, defaultPageForRole, getStoredAdminRole } from "./roleAccess";
 
 const pageDefs = [
   { path: "dashboard", titleKey: "nav.dashboard", icon: LayoutDashboard },
@@ -34,28 +35,33 @@ const pageDefs = [
 
 export function AdminRoutes() {
   const { t } = useI18n();
-  const pages = pageDefs.map((page) => ({
-    ...page,
-    title: t(page.titleKey),
-  }));
+  const role = getStoredAdminRole();
+  const home = defaultPageForRole(role);
+  const pages = pageDefs
+    .filter((page) => canAccessPage(page.path, role))
+    .map((page) => ({
+      ...page,
+      title: t(page.titleKey),
+    }));
 
   return (
     <AdminShell pages={pages}>
       <Routes>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="stores" element={<StoresPage />} />
-        <Route path="customers" element={<CustomersPage />} />
-        <Route path="staff" element={<StaffPage />} />
-        <Route path="classes" element={<ServicesPage />} />
-        <Route path="schedules" element={<SchedulesPage />} />
-        <Route path="bookings" element={<BookingsPage />} />
-        <Route path="memberships" element={<MembershipsPage />} />
-        <Route path="membership-templates" element={<MembershipTemplatesPage />} />
-        <Route path="finance" element={<FinancePage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="marketing" element={<MarketingPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        <Route index element={<Navigate to={`/${home}`} replace />} />
+        {canAccessPage("dashboard", role) && <Route path="dashboard" element={<DashboardPage />} />}
+        {canAccessPage("stores", role) && <Route path="stores" element={<StoresPage />} />}
+        {canAccessPage("customers", role) && <Route path="customers" element={<CustomersPage />} />}
+        {canAccessPage("staff", role) && <Route path="staff" element={<StaffPage />} />}
+        {canAccessPage("classes", role) && <Route path="classes" element={<ServicesPage />} />}
+        {canAccessPage("schedules", role) && <Route path="schedules" element={<SchedulesPage />} />}
+        {canAccessPage("bookings", role) && <Route path="bookings" element={<BookingsPage />} />}
+        {canAccessPage("memberships", role) && <Route path="memberships" element={<MembershipsPage />} />}
+        {canAccessPage("membership-templates", role) && <Route path="membership-templates" element={<MembershipTemplatesPage />} />}
+        {canAccessPage("finance", role) && <Route path="finance" element={<FinancePage />} />}
+        {canAccessPage("reports", role) && <Route path="reports" element={<ReportsPage />} />}
+        {canAccessPage("marketing", role) && <Route path="marketing" element={<MarketingPage />} />}
+        {canAccessPage("settings", role) && <Route path="settings" element={<SettingsPage />} />}
+        <Route path="*" element={<Navigate to={`/${home}`} replace />} />
       </Routes>
     </AdminShell>
   );

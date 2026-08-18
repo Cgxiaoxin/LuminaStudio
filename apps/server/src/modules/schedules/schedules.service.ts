@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
@@ -77,7 +77,10 @@ export class SchedulesService {
   }
 
   async update(id: number, dto: UpdateScheduleDto, tenantId: number) {
-    await this.findOne(id, tenantId);
+    const schedule = await this.findOne(id, tenantId);
+    if (dto.capacity != null && dto.capacity < schedule.bookedCount) {
+      throw new BadRequestException('Capacity cannot be lower than current booked count');
+    }
     const data: any = { ...dto };
     if (dto.startAt) data.startAt = new Date(dto.startAt);
     if (dto.endAt) data.endAt = new Date(dto.endAt);

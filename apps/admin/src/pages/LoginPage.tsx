@@ -23,7 +23,7 @@ export default function LoginPage() {
         headers: { 'X-Tenant-Id': tenantId },
       });
       localStorage.setItem('token', res.data.accessToken);
-      localStorage.setItem('tenantId', tenantId);
+      localStorage.setItem('tenantId', String(res.data.user?.tenantId || tenantId));
       localStorage.setItem('user', JSON.stringify(res.data.user));
       message.success(t('login.success'));
       navigate('/dashboard');

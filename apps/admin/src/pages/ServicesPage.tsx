@@ -32,6 +32,7 @@ export default function ServicesPage() {
       const res = await api.get('/services');
       setData(res.data.data || res.data);
     } catch {
+      message.error(t('common.loadFailed'));
     } finally {
       setLoading(false);
     }

@@ -12,7 +12,7 @@ export class SchedulesController {
   constructor(private schedulesService: SchedulesService) {}
 
   @Post()
-  @Roles('OWNER', 'ADMIN')
+  @Roles('OWNER', 'ADMIN', 'STAFF')
   create(@Body() dto: CreateScheduleDto, @Req() req: RequestWithUser) {
     return this.schedulesService.create(dto, req.user.tenantId);
   }
@@ -30,7 +30,7 @@ export class SchedulesController {
   }
 
   @Patch(':id')
-  @Roles('OWNER', 'ADMIN')
+  @Roles('OWNER', 'ADMIN', 'STAFF')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateScheduleDto,

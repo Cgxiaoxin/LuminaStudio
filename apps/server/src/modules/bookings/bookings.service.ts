@@ -9,6 +9,8 @@ import { Prisma } from '@prisma/client';
 
 type CreateBookingInput = CreateBookingDto & { clientId: number };
 
+const ACTIVE_BOOKING_STATUSES = ['CREATED', 'PENDING_PAYMENT', 'CONFIRMED', 'CHECKED_IN'] as const;
+
 @Injectable()
 export class BookingsService {
   constructor(
@@ -23,11 +25,23 @@ export class BookingsService {
         include: { service: { select: { id: true, price: true, name: true } } },
       });
 
-      if (!schedule || schedule.status === 'CANCELED') {
+      if (!schedule || schedule.status === 'CANCELED' || schedule.status === 'ARCHIVED') {
         throw new NotFoundException('Schedule not found or canceled');
       }
       if (schedule.tenantId !== tenantId) {
         throw new NotFoundException('Schedule not found');
+      }
+
+      const duplicate = await tx.booking.findFirst({
+        where: {
+          scheduleId: dto.scheduleId,
+          clientId: dto.clientId,
+          status: { in: [...ACTIVE_BOOKING_STATUSES] },
+        },
+        select: { id: true },
+      });
+      if (duplicate) {
+        throw new BadRequestException('Already booked this schedule');
       }
 
       // Atomic capacity check — prevents overselling under concurrent requests
@@ -70,6 +84,13 @@ export class BookingsService {
         }
         if (membership.status !== 'ACTIVE') {
           throw new BadRequestException('Membership is not active');
+        }
+        if (membership.expiredAt && membership.expiredAt.getTime() < Date.now()) {
+          await tx.membership.update({
+            where: { id: membership.id },
+            data: { status: 'EXPIRED' },
+          });
+          throw new BadRequestException('Membership has expired');
         }
 
         const servicePrice = Number(schedule.service.price);
@@ -197,9 +218,9 @@ export class BookingsService {
     return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
 
-  async findOne(id: number, tenantId: number) {
+  async findOne(id: number, tenantId: number, clientId?: number) {
     const booking = await this.prisma.booking.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId, ...(clientId ? { clientId } : {}) },
       include: {
         client: { select: { id: true, nickname: true, phone: true, avatarUrl: true } },
         service: { select: { id: true, name: true, type: true, price: true } },
@@ -275,20 +296,32 @@ export class BookingsService {
     });
   }
 
-  async cancel(id: number, tenantId: number, dto?: CancelBookingDto) {
-    const booking = await this.findOne(id, tenantId);
+  async cancel(id: number, tenantId: number, dto?: CancelBookingDto, clientId?: number) {
+    const booking = await this.findOne(id, tenantId, clientId);
 
     if (booking.status === 'COMPLETED' || booking.status === 'CANCELED') {
       throw new BadRequestException(`Cannot cancel booking with status ${booking.status}`);
     }
 
     return this.prisma.$transaction(async (tx) => {
-      // Restore membership session if one was used
       if (booking.usedMembershipId) {
-        await tx.membership.update({
+        const membership = await tx.membership.findUnique({
           where: { id: booking.usedMembershipId },
-          data: { remainingTimes: { increment: 1 } },
         });
+        if (membership) {
+          const servicePrice = Number(booking.service.price);
+          if (membership.type === 'STORED_VALUE') {
+            await tx.membership.update({
+              where: { id: membership.id },
+              data: { balanceAmount: { increment: servicePrice } },
+            });
+          } else if (membership.type !== 'DURATION_BASED') {
+            await tx.membership.update({
+              where: { id: membership.id },
+              data: { remainingTimes: { increment: 1 } },
+            });
+          }
+        }
       }
 
       // Decrement schedule bookedCount

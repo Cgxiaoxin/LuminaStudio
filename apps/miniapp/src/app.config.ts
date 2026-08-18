@@ -1,7 +1,7 @@
 ﻿export default defineAppConfig({
   pages: [
-    'pages/login/index',
     'pages/home/index',
+    'pages/login/index',
     'pages/classes/index',
     'pages/class-detail/index',
     'pages/booking-confirm/index',

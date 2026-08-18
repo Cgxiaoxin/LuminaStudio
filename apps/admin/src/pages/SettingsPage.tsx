@@ -15,7 +15,8 @@ export default function SettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [logoPreview, setLogoPreview] = useState<string>();
   const [form] = Form.useForm();
-  const tenantId = localStorage.getItem("tenantId") || "1";
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const tenantId = String(storedUser.tenantId || localStorage.getItem("tenantId") || "1");
 
   const load = () => {
     setLoading(true);

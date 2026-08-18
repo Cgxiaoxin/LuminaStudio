@@ -1,4 +1,4 @@
-import { Text, View } from '@tarojs/components';
+import { Image, Text, View } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { request } from '../../services/api';
 import { useAppStore } from '../../stores/app';
@@ -42,7 +42,11 @@ export default function CoachesPage() {
               onClick={() => Taro.navigateTo({ url: `/pages/coach-detail/index?id=${coach.id}` })}
             >
               <View className="coach-avatar">
-                <Text>{coach.displayName?.[0] || 'C'}</Text>
+                {coach.avatarUrl ? (
+                  <Image className="coach-avatar-img" src={coach.avatarUrl} mode="aspectFill" />
+                ) : (
+                  <Text>{coach.displayName?.[0] || 'C'}</Text>
+                )}
               </View>
               <View className="coach-info">
                 <Text className="coach-name">{coach.displayName}</Text>

@@ -4,7 +4,7 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { RequestWithUser } from '../../common/types/request';
-import { Public } from '../auth/auth.decorator';
+import { Public, Roles } from '../auth/auth.decorator';
 import { resolveTenantId } from '../../common/utils/resolve-tenant';
 
 @Controller('stores')
@@ -12,6 +12,7 @@ export class StoresController {
   constructor(private storesService: StoresService) {}
 
   @Post()
+  @Roles('OWNER', 'ADMIN')
   create(@Body() dto: CreateStoreDto, @Req() req: RequestWithUser) {
     return this.storesService.create(dto, req.user.tenantId);
   }
@@ -29,6 +30,7 @@ export class StoresController {
   }
 
   @Patch(':id')
+  @Roles('OWNER', 'ADMIN')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateStoreDto,
@@ -38,6 +40,7 @@ export class StoresController {
   }
 
   @Delete(':id')
+  @Roles('OWNER', 'ADMIN')
   remove(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
     return this.storesService.remove(id, req.user.tenantId);
   }

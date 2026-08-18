@@ -16,12 +16,18 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 16rpx;
+  overflow: hidden;
 
   Text {
     color: #ffffff;
     font-size: 48rpx;
     font-weight: 700;
   }
+}
+
+.coach-detail__avatar-img {
+  width: 120rpx;
+  height: 120rpx;
 }
 
 .coach-detail__name {
